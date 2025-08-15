@@ -28,7 +28,7 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def create_mock_data(session_id='demo'):
+def create_mock_data(session_id='d1e2m3o4'):
     """Create mock data for demonstration purposes"""
     
     # Mock PRD Context

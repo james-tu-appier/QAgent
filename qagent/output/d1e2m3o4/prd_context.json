@@ -1,0 +1,36 @@
+{
+  "prd_context": {
+    "core_user_stories": [
+      "Story 1: The quick brown fox jumped over the lazy dog. The quick brown fox jumped over the lazy dog. The quick brown fox jumped over the lazy dog. ",
+      "Story 2: The lazy dog jumped over the quick brown fox. The lazy dog jumped over the quick brown fox. The lazy dog jumped over the quick brown fox. "
+    ],
+    "other_contextual_data": {
+      "acceptance_criteria": [
+        "This is an acceptance criteria."
+      ],
+      "dependencies_and_integrations": [
+        "Dependency 1",
+        "Integration 1"
+      ],
+      "known_limitations_or_risks": [
+        "This is a known limitation. You could also say this limitation is a feature. ",
+        "There is always some risk in everything. That's life. "
+      ],
+      "success_metrics": []
+    },
+    "project_name": "QAgent Example data",
+    "target_feature_summary": "QAgent is a locally runnable pipeline that hopes to help you with test case design, or at least part of it.",
+    "technical_specifications": {
+      "api_endpoints": ["api/health, api/upload"],
+      "authentication_and_authorization": [],
+      "data_models_or_schemas": [
+        "Here are some data models or schemas.",
+        "I'm not sure what elso to add here"
+      ],
+      "system_interactions": [
+        "End to end insteractions between system modules.",
+        "Some other system interactions"
+      ]
+    }
+  }
+}
