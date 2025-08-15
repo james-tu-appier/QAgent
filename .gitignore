@@ -5,6 +5,7 @@
 # outputs and uploads
 qagent/uploads
 qagent/output
+Demo_Images/*
 
 # Python
 __pycache__/
@@ -48,3 +49,4 @@ __MACOSX/
 # VS Code
 .vscode/
 .qodo
+*.zip
