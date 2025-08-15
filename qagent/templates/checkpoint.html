@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkpoint Review - Test Planner</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <style>
+        .checkpoint-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        .content-editor {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            min-height: 300px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .content-editor:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        .checkpoint-step {
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0 8px 8px 0;
+        }
+        .checkpoint-step.completed {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        .checkpoint-step.current {
+            border-left-color: #ffc107;
+            background: #fff3cd;
+        }
+        .progress-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .processing-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .processing-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 400px;
+        }
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .original-content {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fas fa-robot me-2"></i>
+                Test Planner
+            </a>
+            <span class="navbar-text">
+                <i class="fas fa-eye me-2"></i>
+                Review Mode
+            </span>
+        </div>
+    </nav>
+
+    <!-- Processing Overlay -->
+    <div id="processingOverlay" class="processing-overlay" style="display: none;">
+        <div class="processing-content">
+            <div class="spinner-border text-primary mb-3" role="status">
+                <span class="visually-hidden">Processing...</span>
+            </div>
+            <h5 id="processingText">Processing next step...</h5>
+            <p class="text-muted">Please wait while we generate the next checkpoint</p>
+        </div>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div class="progress-indicator">
+        <div class="card shadow">
+            <div class="card-body p-2">
+                <small class="text-muted">Step {{ checkpoint_step }}/3</small>
+                <div class="progress" style="height: 6px;">
+                    <div class="progress-bar" role="progressbar" 
+                         style="width: (checkpoint_step / 3) * 100%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="checkpoint-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="mb-2">
+                        <i class="fas fa-{{ checkpoint_icon }} me-3"></i>
+                        {{ checkpoint_title }}
+                    </h2>
+                    <p class="mb-0 opacity-75">{{ checkpoint_description }}</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="badge bg-light text-dark fs-6">
+                        Session: {{ session_id }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Checkpoint Steps -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="checkpoint-step {{ 'completed' if checkpoint_step > 1 else 'current' if checkpoint_step == 1 else '' }}">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            {% if checkpoint_step > 1 %}
+                                <i class="fas fa-check-circle text-success fa-lg"></i>
+                            {% elif checkpoint_step == 1 %}
+                                <i class="fas fa-spinner fa-spin text-warning fa-lg"></i>
+                            {% else %}
+                                <i class="fas fa-circle text-muted fa-lg"></i>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <h6 class="mb-1">PRD Context Generation</h6>
+                            <small class="text-muted">Extract structured information from your PRD document</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="checkpoint-step {{ 'completed' if checkpoint_step > 2 else 'current' if checkpoint_step == 2 else '' }}">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            {% if checkpoint_step > 2 %}
+                                <i class="fas fa-check-circle text-success fa-lg"></i>
+                            {% elif checkpoint_step == 2 %}
+                                <i class="fas fa-spinner fa-spin text-warning fa-lg"></i>
+                            {% else %}
+                                <i class="fas fa-circle text-muted fa-lg"></i>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Figma Summary Generation</h6>
+                            <small class="text-muted">Analyze Figma design and create UI/UX summary</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="checkpoint-step {{ 'completed' if checkpoint_step > 3 else 'current' if checkpoint_step == 3 else '' }}">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            {% if checkpoint_step > 3 %}
+                                <i class="fas fa-check-circle text-success fa-lg"></i>
+                            {% elif checkpoint_step == 3 %}
+                                <i class="fas fa-spinner fa-spin text-warning fa-lg"></i>
+                            {% else %}
+                                <i class="fas fa-circle text-muted fa-lg"></i>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Test Plan Generation</h6>
+                            <small class="text-muted">Create comprehensive test plan from PRD and Figma data</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Review Section -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                <i class="fas fa-edit me-2"></i>
+                                Review & Modify {{ content_type }}
+                            </h5>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="revertToOriginal()">
+                                <i class="fas fa-undo me-1"></i>
+                                Revert to Original
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form id="checkpointForm" method="POST" action="{{ url_for('checkpoint_proceed', session_id=session_id, checkpoint=checkpoint_step) }}">
+                            <div class="mb-3">
+                                <label for="content" class="form-label">
+                                    <i class="fas fa-file-alt me-2"></i>
+                                    {{ content_type }} Content
+                                </label>
+                                <textarea class="form-control content-editor" id="content" name="content" 
+                                          rows="20" required>{{ content }}</textarea>
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    You can modify the generated content before proceeding to the next step.
+                                    {% if checkpoint_step == 3 %}
+                                        <br><strong>Note:</strong> This is the Markdown version of the test plan for easier editing.
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Hidden field to store original content -->
+                            <textarea class="original-content" id="originalContent">{{ original_content }}</textarea>
+                            
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-outline-secondary" onclick="history.back()" id="backBtn">
+                                    <i class="fas fa-arrow-left me-2"></i>
+                                    Go Back
+                                </button>
+                                
+                                <div>
+                                    <button type="submit" name="action" value="proceed" class="btn btn-primary" id="proceedBtn">
+                                        <i class="fas fa-arrow-right me-2"></i>
+                                        {% if checkpoint_step == 3 %}
+                                            Generate Final Test Cases
+                                        {% else %}
+                                            Proceed to Next Step
+                                        {% endif %}
+                                    </button>
+                                    
+                                    {% if checkpoint_step < 3 %}
+                                    <button type="submit" name="action" value="skip" class="btn btn-outline-warning ms-2" id="skipBtn">
+                                        <i class="fas fa-forward me-2"></i>
+                                        Skip Review
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <!-- Help Panel -->
+                <div class="card shadow mb-3">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-question-circle me-2"></i>
+                            Help & Tips
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <h6 class="text-primary">
+                                <i class="fas fa-lightbulb me-2"></i>
+                                What to look for:
+                            </h6>
+                            <ul class="small">
+                                <li>Accuracy of extracted information</li>
+                                <li>Missing key requirements</li>
+                                <li>Incorrect technical details</li>
+                                <li>Formatting issues</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h6 class="text-success">
+                                <i class="fas fa-check me-2"></i>
+                                Common improvements:
+                            </h6>
+                            <ul class="small">
+                                <li>Add missing user stories</li>
+                                <li>Correct API endpoint details</li>
+                                <li>Update feature descriptions</li>
+                                <li>Fix typos and formatting</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <small>
+                                <i class="fas fa-info-circle me-1"></i>
+                                <strong>Tip:</strong> You can always go back and modify previous steps later.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Session Info -->
+                <div class="card shadow">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-info me-2"></i>
+                            Session Information
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <small class="text-muted">Session ID:</small><br>
+                                <code>{{ session_id }}</code>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Current Step:</small><br>
+                                <span class="badge bg-primary">{{ checkpoint_step }}/3</span>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="text-center">
+                            <a href="{{ url_for('results', session_id=session_id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye me-1"></i>
+                                View All Results
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-resize textarea
+        const textarea = document.getElementById('content');
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+        
+        // Initialize height
+        textarea.style.height = textarea.scrollHeight + 'px';
+        
+        // Revert to original content
+        function revertToOriginal() {
+            const originalContent = document.getElementById('originalContent').value;
+            const contentEditor = document.getElementById('content');
+            contentEditor.value = originalContent;
+            contentEditor.style.height = 'auto';
+            contentEditor.style.height = contentEditor.scrollHeight + 'px';
+            
+            // Show success message
+            const revertBtn = event.target.closest('button');
+            const originalText = revertBtn.innerHTML;
+            revertBtn.innerHTML = '<i class="fas fa-check me-1"></i>Reverted!';
+            revertBtn.classList.remove('btn-outline-secondary');
+            revertBtn.classList.add('btn-success');
+            
+            setTimeout(() => {
+                revertBtn.innerHTML = originalText;
+                revertBtn.classList.remove('btn-success');
+                revertBtn.classList.add('btn-outline-secondary');
+            }, 2000);
+        }
+        
+        // Form submission with processing overlay
+        document.getElementById('checkpointForm').addEventListener('submit', function(e) {
+            const content = document.getElementById('content').value.trim();
+            if (!content) {
+                e.preventDefault();
+                alert('Please provide content before proceeding.');
+                return;
+            }
+            
+            const action = e.submitter.value;
+            if (action === 'proceed' || action === 'skip') {
+                // Only show overlay when proceeding to next step
+                const overlay = document.getElementById('processingOverlay');
+                const processingText = document.getElementById('processingText');
+                
+                if (action === 'proceed') {
+                    processingText.textContent = 'Processing next step...';
+                } else {
+                    processingText.textContent = 'Skipping review and proceeding...';
+                }
+                
+                overlay.style.display = 'flex';
+            
+            // Disable all buttons
+            document.getElementById('proceedBtn').disabled = true;
+            document.getElementById('backBtn').disabled = true;
+            if (document.getElementById('skipBtn')) {
+                document.getElementById('skipBtn').disabled = true;
+            }
+            
+                // Only re-enable on error or when the new page loads
+                const cleanup = () => {
+                    overlay.style.display = 'none';
+                    document.getElementById('proceedBtn').disabled = false;
+                    document.getElementById('backBtn').disabled = false;
+                    if (document.getElementById('skipBtn')) {
+                        document.getElementById('skipBtn').disabled = false;
+                    }
+                };
+
+                // Handle errors
+                window.addEventListener('error', cleanup, { once: true });
+
+                // Handle page unload (next step loaded)
+                window.addEventListener('unload', cleanup, { once: true });
+            }
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.querySelector('button[value="proceed"]').click();
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

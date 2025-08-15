@@ -1,0 +1,33 @@
+{
+  "test_plan": {
+    "test_plan_id": "Test-plan-id",
+    "feature": "feature",
+    "objective": "The objective of the feature",
+    "preconditions": [
+      "preconditions 1",
+      "preconditions 2"
+    ],
+    "sub_feature_tests": [
+      {
+        "sub_feature": "Sub feature 1",
+        "test_cases": [
+          {
+            "test_case_id": "TC-001",
+            "test_type": "Functional",
+            "priority": "P0",
+            "test_scenario": "This is test case one's scenario.",
+            "test_steps": [
+              "1. Do test step 1.",
+              "2. Do test step 2."
+            ],
+            "expected_result": [
+              "This is a result",
+              "This is something that should happen."
+            ],
+            "additional_notes": "This is only an example"
+          }
+        ]
+      }
+    ]
+  }
+}

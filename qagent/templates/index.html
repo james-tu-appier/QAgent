@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoverIQ QAgent</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-robot me-2"></i>
+                CoverIQ — QAgent Test Planner
+            </a>
+            <button class="btn btn-outline-light ms-auto" data-bs-toggle="modal" data-bs-target="#aboutUsModal">
+                <i class="fas fa-info-circle me-1"></i> About Us
+            </button>
+        </div>
+    </nav>
+    <!-- Slogan -->
+    <div class="container mt-3">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="alert alert-info text-center fw-bold mb-4" style="font-size: 1.25rem;">
+                    Intelligent QA Workflow Coverage with QAgent: Don’t just automate tests! Automate your tasks!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-5">
+    <!-- About Us Modal -->
+    <div class="modal fade" id="aboutUsModal" tabindex="-1" aria-labelledby="aboutUsModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h4 class="modal-title" id="aboutUsModalLabel"><i class="fas fa-users me-2"></i>About Us</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <h5 class="fw-bold mb-2" style="padding-bottom: 1%;">The Problem We're Solving:</h5>
+            <h6 class="mb-2"><i>"Turning Documentation into Validation and Optimization."</i></h6>
+            <p>As QAs, a huge part of our daily work is consumed by the manual, repetitive, and time-consuming process of translating product requirements and designs into actionable test plans. We manually read long PRDs, cross-reference complex Figma files, and then spend hours writing test plans, detailed test cases, and bug reports. This foundational work is critical, but it's a bottleneck that delays actual testing and keeps us buried in documentation.</p>
+            <h5 class="fw-bold mb-2 mt-4">Our AI-Powered Solution:</h5>
+            <p>This project is an intelligent platform designed to automate the entire test design and documentation phase, directly enhancing our daily QA workflow. It acts as a smart assistant that handles the heavy lifting, allowing us to focus our expertise and resources where it matters most: <strong>Breaking Software and Building Confidence</strong>.</p>
+            <h5 class="fw-bold mb-2 mt-4">The Team:</h5>
+            <p>James Tu and Liam Sun from the AIQUA QA Team @ Appier</p>
+          </div>
+        </div>
+      </div>
+    </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Previous Session Form -->
+                <div class="card shadow-lg mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-history me-2"></i>
+                            View Previous Session
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ url_for('results', session_id='') }}" method="GET" class="row g-2" id="previousSessionForm">
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" id="session_id" name="session_id" 
+                                       placeholder="Enter Session ID (e.g., d1e2m3o4)" pattern="[a-zA-Z0-9]{8}"
+                                       title="Session ID should be 8 characters long">
+                            </div>
+                            <div class="col-sm-4">
+                                <button type="submit" class="btn btn-secondary w-100">
+                                    <i class="fas fa-search me-2"></i>View Results
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Generate New Test Plan -->
+                <div class="card shadow-lg">
+                    <div class="card-header bg-primary text-white" id="form_header">
+                        <h3 class="mb-0">
+                            <i class="fas fa-upload me-2"></i>
+                            Generate Test Plan
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="uploadForm" method="POST" enctype="multipart/form-data" action="{{ url_for('upload_file') }}">
+                            <!-- Trust Mode Toggle -->
+                            <div class="mb-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="trustMode" name="trust_mode" checked>
+                                    <label class="form-check-label fw-bold" for="trustMode" id="toggle_label">
+                                        <i class="fas fa-shield-alt me-2"></i>
+                                        Trust Mode
+                                    </label>
+                                </div>
+                                <div class="form-text">
+                                    <strong>ON:</strong> Generate complete test plan automatically<br>
+                                    <strong>OFF:</strong> Review and modify at each checkpoint
+                                </div>
+                            </div>
+
+                            <!-- File Upload -->
+                            <div class="mb-3">
+                                <label for="prd_file" class="form-label">
+                                    <i class="fas fa-file-pdf me-2"></i>
+                                    PRD Document (PDF, TXT, or MD)
+                                </label>
+                                <input type="file" class="form-control" id="prd_file" name="prd_file" accept=".pdf,.txt,.md" required>
+                                <div class="form-text">Upload your Product Requirements Document</div>
+                            </div>
+
+                            <!-- Figma URL -->
+                            <div class="mb-4">
+                                <label for="figma_url" class="form-label">
+                                    <i class="fas fa-palette me-2"></i>
+                                    Figma Design URL
+                                </label>
+                                <input type="url" class="form-control" id="figma_url" name="figma_url" 
+                                       placeholder="https://www.figma.com/file/..." required>
+                                <div class="form-text">Link to your Figma design for UI/UX context</div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                    <i class="fas fa-magic me-2"></i>
+                                    Generate Test Plan in One Click!
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Feature Highlights -->
+                <div class="row" style="margin-top: 40px;">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                <i class="fas fa-file-alt fa-2x text-primary"></i>
+                            </div>
+                            <h5>PRD Analysis</h5>
+                            <p class="text-muted">Extract structured information from Product Requirements Documents</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                <i class="fab fa-figma fa-2x text-primary"></i>
+                            </div>
+                            <h5>Design Parsing</h5>
+                            <p class="text-muted">Parse Figma designs and extract interactive components</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                <i class="fas fa-vial fa-2x text-primary"></i>
+                            </div>
+                            <h5>Test Generation</h5>
+                            <p class="text-muted">Generate comprehensive test plans and detailed test cases</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-5">
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fas fa-brain fa-3x text-primary mb-3"></i>
+                                <h5>AI-Powered Analysis</h5>
+                                <p class="text-muted">Advanced AI analyzes your PRD and Figma designs to understand requirements</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fas fa-clipboard-check fa-3x text-success mb-3"></i>
+                                <h5>Comprehensive Test Plans</h5>
+                                <p class="text-muted">Generate detailed test cases covering all user scenarios and edge cases</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fas fa-eye fa-3x text-info mb-3"></i>
+                                <h5>Manual Review Option</h5>
+                                <p class="text-muted">Review and modify generated content at each checkpoint for quality control</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- How It Works -->
+                <div class="mt-5">
+                    <h4 class="text-center mb-4">
+                        <i class="fas fa-cogs me-2"></i>
+                        How It Works
+                    </h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-success text-white">
+                                    <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Trust Mode (Instant Generation)</h6>
+                                </div>
+                                <div class="card-body">
+                                    <ol class="mb-0">
+                                        <li>Upload PRD & Figma URL</li>
+                                        <li>AI processes everything automatically</li>
+                                        <li>Get complete test plan instantly</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0"><i class="fas fa-hand-paper me-2"></i>Supervised Mode (Manual Review)</h6>
+                                </div>
+                                <div class="card-body">
+                                    <ol class="mb-0">
+                                        <li>Upload PRD & Figma URL</li>
+                                        <li>Review PRD context → Modify if needed</li>
+                                        <li>Review Figma summary → Modify if needed</li>
+                                        <li>Review test plan → Modify if needed</li>
+                                        <li>Generate detailed test cases</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="spinner-border text-primary mb-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h5 id="loadingText">Processing...</h5>
+            <div class="progress mt-3" style="width: 300px;">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                     role="progressbar" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Trust mode toggle functionality
+        document.getElementById('trustMode').addEventListener('change', function() {
+            const isTrustMode = this.checked;
+            const submitBtn = document.getElementById('submitBtn');
+            const toggleLabel = document.getElementById('toggle_label');
+            const formHeader = document.getElementById('form_header');
+            
+            if (isTrustMode) {
+                formHeader.classList.remove('bg-warning');
+                toggleLabel.innerHTML = '<i class="fas fa-shield-alt me-2"></i>Trust Mode';
+                submitBtn.innerHTML = '<i class="fas fa-magic me-2"></i>Generate Test Plan in One Click!';
+                submitBtn.className = 'btn btn-primary btn-lg';
+
+            } else {
+                formHeader.classList.add('bg-warning');
+                toggleLabel.innerHTML = '<i class="fas fa-hand-paper me-2"></i>Supervised Mode';
+                submitBtn.innerHTML = '<i class="fas fa-hand-paper me-2"></i>Start Pipeline Review Process';
+                submitBtn.className = 'btn btn-warning btn-lg';
+            }
+        });
+
+        // Form validation and submission
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            const fileInput = document.getElementById('prd_file');
+            const figmaUrl = document.getElementById('figma_url').value;
+            const isTrustMode = document.getElementById('trustMode').checked;
+            
+            if (!fileInput.files[0]) {
+                e.preventDefault();
+                alert('Please select a PRD file');
+                return;
+            }
+            
+            if (!figmaUrl) {
+                e.preventDefault();
+                alert('Please enter a Figma URL');
+                return;
+            }
+            
+            // Show loading overlay
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const loadingText = document.getElementById('loadingText');
+            const progressBar = document.querySelector('.progress-bar');
+            
+            loadingOverlay.style.display = 'flex';
+            
+            if (isTrustMode) {
+                loadingText.textContent = 'Generating complete test plan...';
+                progressBar.style.width = '0%';
+                
+                // Simulate progress for trust mode
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += Math.random() * 15;
+                    if (progress > 100) progress = 100;
+                    progressBar.style.width = progress + '%';
+                    
+                    if (progress >= 100) {
+                        clearInterval(progressInterval);
+                    }
+                }, 500);
+            } else {
+                loadingText.textContent = 'Starting review process...';
+                progressBar.style.width = '25%';
+            }
+        });
+    </script>
+</body>
+</html> 

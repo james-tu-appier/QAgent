@@ -1,0 +1,33 @@
+{
+  "test_suite": [
+    {
+      "high_level_test_case": {
+        "Test Case ID": "TC-001",
+        "Test Scenario/Description": "The Scenario of the test.",
+        "Test Steps": "1. Step 1: do step one.<br>2. Step2: do step two.<br>3. Step 3: Yes, you guessed it, do step three.",
+        "Expected Result": "Hopefully, nothing breaks.",
+        "Rationale / Business Impact": "Quality assurance is an important part of software development.",
+        "Test Type": "Functional",
+        "Priority": "P0"
+      },
+      "detailed_manual_test_case": [
+        {
+          "step_number": 1,
+          "action": "1. Step 1: do step one by doing step one. ",
+          "expected_result": "Whatever should happen when you do step one."
+        },
+        {
+          "step_number": 2,
+          "action": "2. Step 2: do step two by doing step two.",
+          "expected_result": "If step one passes, this step should follow step one."
+        },
+        {
+          "step_number": 3,
+          "action": "3. Step 3: do step 3 after step one and step two.",
+          "expected_result": "If nothing breaks up to this point, this test case passes. "
+        }
+      ],
+      "sample_bug_report": "### Bug: Bug-001 - Operator quotes an image message and replies with a text message.\n\n**Priority:** P0\n**Test Case:** `TC-CQ-003`\n\n---\n\n#### Steps to Reproduce:\n1. Step 1: do step one by doing step one. \n32. Step 2: do step two by doing step two.\n3. Step 3: do step 3 after step one and step two.\n\n---\n\n#### Expected Result:\nWhatever should happen when you do step one.\n If step one passes, this step should follow step one. \n If nothing breaks up to this point, this test case passes. \n\n---\n\n#### Actual Result:\n*(QA to fill this in. Describe what actually happened when the test failed.)*\n\n---\n\n#### Notes / Environment:\n- **Browser:** - **OS:** - **Notes:** *(QA to add any additional context, logs, or screenshots.)*"
+    }
+  ]
+}

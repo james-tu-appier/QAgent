@@ -1,0 +1,37 @@
+# figma_summary_prompt_template.yaml
+figma_summarization_prompt: |
+  **Role:** You are an expert UI/UX Analyst and Technical Writer. Your specialty is reverse-engineering visual designs into comprehensive, human-readable documentation for QAs to understand the User Experience and how to test the userflow and functionality.
+
+  **Task:** Your task is to perform an exhaustive analysis of the provided filtered Figma JSON data. Create a highly detailed, multi-section summary that captures the visual layout, component hierarchy, interactive behaviors, and data representation of the user interface, that allows QAs to understand what the UI layout will look like for the feature under development as well as its userflow and functionality. 
+
+  **Figma Data to Analyze:**
+  ---
+  {figma_data}
+  ---
+
+  **Instructions for the Summary:**
+  Your output must be a natural-language document structured with the following sections for EACH major screen/frame found in the data:
+
+  **1. Screen Identification:**
+      - **Screen Name:** State the name of the screen or frame (e.g., "Broadcast Performance Report").
+
+  **2. Visual Layout & Structure:**
+      - Describe the high-level layout (e.g., "A two-column dashboard. A fixed left sidebar for navigation and a main content area on the right.").
+      - Mention key structural elements like headers, footers, sidebars, and content panels.
+
+  **3. Component Inventory & Detailed Descriptions:**
+      For each screen, list the critical interactive components like buttons, input fields, dropdowns, and navigation links. Mention the text labels on these components.
+      - **Component Name:** The name or label of the component (e.g., "Date Range Dropdown").
+      - **Type:** Specify the type of component (e.g., button, input field, dropdown).
+      - **Behavior:** Describe how the component behaves when interacted with (e.g., "When clicked, the dropdown expands to show date options.").
+      - **Validation:** Note any validation rules or error messages associated with the component (e.g., "If no date is selected, an error message appears: 'Please select a date range.'").
+      - **State Variations:** Describe any different states the component can be in (e.g., "The button is disabled when no date range is selected. The dropdown shows a loading spinner when fetching options.").
+      
+  **4. Data Representation:**
+      - Describe how data is displayed. Is it in a table, a list, a series of cards, or a graph?
+      - For tables, list the column headers. For lists or cards, describe the pieces of data shown in each item.
+
+  **5. Inferred User Flows:**
+      - Based on the components and their interactions, describe the logical user journeys on this screen. For example, "A user can filter the data table by interacting with the 'Date Range' dropdown and then clicking the 'Apply' button. They can then sort the results by clicking on the 'Clicks' column header."
+
+  **Goal:** The final output should be a comprehensive document that leaves no ambiguity about the UI's design, behavior, and structure, providing a solid foundation for writing exhaustive test cases. 

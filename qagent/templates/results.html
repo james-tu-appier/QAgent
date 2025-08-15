@@ -1,0 +1,1248 @@
+{% extends "base.html" %}
+
+{% block title %}QAgent Demo - Results{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h2 text-primary">
+            <i class="fas fa-check-circle"></i> Test Plan Generated Successfully!
+        </h1>
+        <p class="text-muted">Session ID: {{ session_id }}</p>
+    </div>
+                <div>
+                    <form action="{{ url_for('results') }}" method="GET" class="d-inline-block me-2">
+                        <div class="input-group">
+                            <input type="text" class="form-control form-control-sm" name="session_id" 
+                                   placeholder="Session ID" pattern="[a-zA-Z0-9]{8}"
+                                   title="Session ID should be 8 characters long">
+                            <button class="btn btn-outline-secondary btn-sm" type="submit">
+                                <i class="fas fa-search"></i> Load Session
+                            </button>
+                        </div>
+                    </form>
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left"></i> Generate New Test Plan
+                    </a>
+                </div>
+            </div><!-- Download Section -->
+<div class="card mb-4">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0">
+            <i class="fas fa-download"></i> Download & Export Results
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <h6>Test Plan Files:</h6>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('download_file', session_id=session_id, file_type='test_plan_json') }}" 
+                       class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-file-code"></i> Test Plan (JSON)
+                    </a>
+                    <a href="{{ url_for('download_file', session_id=session_id, file_type='test_plan_md') }}" 
+                       class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-file-alt"></i> Test Plan (Markdown)
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <h6>Detailed Test Files:</h6>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('download_file', session_id=session_id, file_type='test_suite_json') }}" 
+                       class="btn btn-outline-success btn-sm">
+                        <i class="fas fa-file-code"></i> Test Suite (JSON)
+                    </a>
+                    <a href="{{ url_for('download_file', session_id=session_id, file_type='test_suite_md') }}" 
+                       class="btn btn-outline-success btn-sm">
+                        <i class="fas fa-file-alt"></i> Test Suite (Markdown)
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <h6>Export to TestRail:</h6>
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#testrailModal">
+                        <i class="fas fa-upload"></i> Upload to TestRail
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results Tabs -->
+<ul class="nav nav-tabs" id="resultsTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="prd-tab" data-bs-toggle="tab" data-bs-target="#prd" type="button" role="tab">
+            <i class="fas fa-file-alt"></i> PRD Context
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="figma-tab" data-bs-toggle="tab" data-bs-target="#figma" type="button" role="tab">
+            <i class="fab fa-figma"></i> Figma Summary
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="test-plan-tab" data-bs-toggle="tab" data-bs-target="#test-plan" type="button" role="tab">
+            <i class="fas fa-list-check"></i> Test Plan
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="detailed-tests-tab" data-bs-toggle="tab" data-bs-target="#detailed-tests" type="button" role="tab">
+            <i class="fas fa-vial"></i> Detailed Tests
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="raw-json-tab" data-bs-toggle="tab" data-bs-target="#raw-json" type="button" role="tab">
+            <i class="fas fa-code"></i> Raw JSON
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="resultsTabContent">
+    <!-- PRD Context Tab -->
+    <div class="tab-pane fade show active" id="prd" role="tabpanel">
+        <div id="prd-content" class="bg-light p-3 rounded">
+            {% if result.prd_context %}
+                <div class="mb-3">
+                    <h6 class="text-primary">Project Name</h6>
+                    <p class="mb-2">{{ result.prd_context.prd_context.project_name }}</p>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-primary">Feature Summary</h6>
+                    <p class="mb-2">{{ result.prd_context.prd_context.target_feature_summary }}</p>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-primary">Core User Stories</h6>
+                    <ul class="mb-2">
+                        {% for story in result.prd_context.prd_context.core_user_stories %}
+                            <li>{{ story }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-primary">Technical Specifications</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="text-secondary">System Interactions</h6>
+                            <ul class="small">
+                                {% for interaction in result.prd_context.prd_context.technical_specifications.system_interactions %}
+                                    <li>{{ interaction }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-secondary">API Endpoints</h6>
+                            <ul class="small">
+                                {% for endpoint in result.prd_context.prd_context.technical_specifications.api_endpoints %}
+                                    <li>{{ endpoint }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <p class="text-muted">No PRD context available</p>
+            {% endif %}
+        </div>
+    </div>
+
+
+    <!-- Figma Summary Tab -->
+    <div class="tab-pane fade" id="figma" role="tabpanel">
+        <div class="card mt-3">
+            <div class="card-body">
+                <h5>Figma Design Summary</h5>
+                {% if result.figma_summary %}
+                    <div class="bg-light p-3 rounded">
+                        <pre class="mb-0">{{ result.figma_summary }}</pre>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No Figma summary available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Plan Tab -->
+    <div class="tab-pane fade" id="test-plan" role="tabpanel">
+        <div class="card mt-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">Generated Test Plan</h5>
+                    <div>
+                        <button class="btn btn-outline-primary btn-sm" onclick="toggleEditMode()" id="editToggleBtn">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn btn-success btn-sm" onclick="saveTestPlan()" id="saveBtn" style="display: none;">
+                            <i class="fas fa-save"></i> Save
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="cancelEdit()" id="cancelBtn" style="display: none;">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="testPlanView">
+                    {% if result.test_plan %}
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <strong>Test Plan ID:</strong> {{ result.test_plan.test_plan.test_plan_id }}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Feature:</strong> {{ result.test_plan.test_plan.feature }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <strong>Objective:</strong>
+                            <p>{{ result.test_plan.test_plan.objective }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <strong>Preconditions:</strong>
+                            <ul>
+                                {% for condition in result.test_plan.test_plan.preconditions %}
+                                    <li>{{ condition }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        
+                        <h6>Test Cases by Sub-Feature</h6>
+                        {% for sub_feature in result.test_plan.test_plan.sub_feature_tests %}
+                            <div class="card mb-3">
+                                <div class="card-header">
+                                    <h6 class="mb-0">{{ sub_feature.sub_feature }}</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Test Case ID</th>
+                                                    <th>Scenario</th>
+                                                    <th>Type</th>
+                                                    <th>Priority</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for test_case in sub_feature.test_cases %}
+                                                    <tr>
+                                                        <td><code>{{ test_case.test_case_id }}</code></td>
+                                                        <td>
+                                                            <button class="btn btn-sm btn-outline-secondary ms-2" type="button" onclick="toggleSteps('steps-{{ sub_feature.sub_feature|replace(' ', '-') }}-{{ test_case.test_case_id }}')">
+                                                                <i class="fas fa-list"></i> Details
+                                                            </button>
+                                                            {{ test_case.test_scenario }}
+                                                            <div class="mt-2" id="steps-{{ sub_feature.sub_feature|replace(' ', '-') }}-{{ test_case.test_case_id }}" style="display: none;">
+                                                                <div class="card card-body">
+                                                                    <strong>Test Steps:</strong>
+                                                                    <ol class="mb-0">
+                                                                        {% for step in test_case.test_steps %}
+                                                                            <li>{{ step }}</li>
+                                                                        {% endfor %}
+                                                                    </ol>
+                                                                    <strong>Expected Results:</strong>
+                                                                    <ol class="mb-0">
+                                                                        {% for result in test_case.expected_result %}
+                                                                            <li>{{ result }}</li>
+                                                                        {% endfor %}
+                                                                    </ol>
+                                                                    <strong>Additional Notes:</strong>
+                                                                    <ol class="mb-0">
+                                                                        {{test_case["additional_notes"]}}
+                                                                    </ol>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td><span class="badge bg-info">{{ test_case.test_type }}</span></td>
+                                                        <td><span class="badge bg-warning">{{ test_case.priority }}</span></td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No test plan available.</p>
+                    {% endif %}
+                </div>
+                
+                <div id="testPlanEdit" style="display: none;">
+                    <div class="mb-3">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Edit Test Plan:</strong> Use the form below to edit your test plan. Changes will be saved to both JSON and Markdown formats.
+                        </div>
+                        
+                        <!-- Basic Test Plan Information -->
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="fas fa-info-circle"></i> Basic Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="testPlanId" class="form-label">Test Plan ID</label>
+                                        <input type="text" class="form-control" id="testPlanId" value="{{ result.test_plan.test_plan.test_plan_id if result.test_plan else '' }}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="testPlanFeature" class="form-label">Feature</label>
+                                        <input type="text" class="form-control" id="testPlanFeature" value="{{ result.test_plan.test_plan.feature if result.test_plan else '' }}">
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <label for="testPlanObjective" class="form-label">Objective</label>
+                                    <textarea class="form-control" id="testPlanObjective" rows="3">{{ result.test_plan.test_plan.objective if result.test_plan else '' }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Preconditions -->
+                        <div class="card mb-3">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0"><i class="fas fa-list-check"></i> Preconditions</h6>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="addPrecondition()">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div id="preconditionsList">
+                                    {% if result.test_plan and result.test_plan.test_plan.preconditions %}
+                                        {% for precondition in result.test_plan.test_plan.preconditions %}
+                                            <div class="input-group mb-2 precondition-item">
+                                                <input type="text" class="form-control" value="{{ precondition }}">
+                                                <button class="btn btn-outline-danger" type="button" onclick="removePrecondition(this)">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="input-group mb-2 precondition-item">
+                                            <input type="text" class="form-control" placeholder="Enter a precondition...">
+                                            <button class="btn btn-outline-danger" type="button" onclick="removePrecondition(this)">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Test Cases by Sub-Feature -->
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="fas fa-vial"></i> Test Cases by Sub-Feature</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="subFeaturesList">
+                                    {% if result.test_plan and result.test_plan.test_plan.sub_feature_tests %}
+                                        {% for sub_feature in result.test_plan.test_plan.sub_feature_tests %}
+                                            <div class="sub-feature-item card mb-3">
+                                                <div class="card-header d-flex justify-content-between align-items-center">
+                                                    <input type="text" class="form-control form-control-sm sub-feature-name" value="{{ sub_feature.sub_feature }}" style="max-width: 300px;">
+                                                    <div>
+                                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeSubFeature(this)">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="test-cases-list">
+                                                        {% for test_case in sub_feature.test_cases %}
+                                                            <div class="test-case-item card mb-2">
+                                                                <div class="card-body">
+                                                                    <div class="row">
+                                                                        <div class="col-md-3">
+                                                                            <label class="form-label">Test Case ID</label>
+                                                                            <input type="text" class="form-control form-control-sm" value="{{ test_case.test_case_id }}">
+                                                                        </div>
+                                                                        <div class="col-md-3">
+                                                                            <label class="form-label">Test Type</label>
+                                                                            <select class="form-select form-select-sm">
+                                                                                <option value="Functional" {% if test_case.test_type == 'Functional' %}selected{% endif %}>Functional</option>
+                                                                                <option value="Integration" {% if test_case.test_type == 'Integration' %}selected{% endif %}>Integration</option>
+                                                                                <option value="UI/UX" {% if test_case.test_type == 'UI/UX' %}selected{% endif %}>UI/UX</option>
+                                                                                <option value="Performance" {% if test_case.test_type == 'Performance' %}selected{% endif %}>Performance</option>
+                                                                                <option value="Security" {% if test_case.test_type == 'Security' %}selected{% endif %}>Security</option>
+                                                                            </select>
+                                                                        </div>
+                                                                        <div class="col-md-3">
+                                                                            <label class="form-label">Priority</label>
+                                                                            <select class="form-select form-select-sm">
+                                                                                <option value="P0" {% if test_case.priority == 'P0' %}selected{% endif %}>P0: High</option>
+                                                                                <option value="P1" {% if test_case.priority == 'P1' %}selected{% endif %}>P1: Medium</option>
+                                                                                <option value="P2" {% if test_case.priority == 'P2' %}selected{% endif %}>P2: Low</option>
+                                                                            </select>
+                                                                        </div>
+                                                                        <div class="col-md-3">
+                                                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeTestCase(this)">
+                                                                                <i class="fas fa-trash"></i> Remove Test Case
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="mt-2">
+                                                                        <label class="form-label">Test Scenario</label>
+                                                                        <textarea class="form-control" rows="2">{{ test_case.test_scenario }}</textarea>
+                                                                    </div>
+                                                                    <div class="mt-2">
+                                                                        <label class="form-label">Additional Notes</label>
+                                                                        <textarea class="form-control" rows="2">{{ test_case['additional_notes'] }}</textarea>
+                                                                    </div>
+                                                                    <div class="mt-2">
+                                                                        <label class="form-label">Test Steps</label>
+                                                                        <div class="test-steps-list">
+                                                                            {% for step in test_case.test_steps %}
+                                                                                <div class="input-group mb-1 test-step-item">
+                                                                                    <span class="input-group-text">{{ loop.index }}</span>
+                                                                                    <input type="text" class="form-control" value="{{ step }}">
+                                                                                    <button class="btn btn-outline-danger" type="button" onclick="removeTestStep(this)">
+                                                                                        <i class="fas fa-trash"></i>
+                                                                                    </button>
+                                                                                </div>
+                                                                            {% endfor %}
+                                                                        </div>
+                                                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addTestStep(this)">
+                                                                            <i class="fas fa-plus"></i> Add Step
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="mt-2">
+                                                                        <label class="form-label">Expected Results</label>
+                                                                        <div class="expected-results-list">
+                                                                            {% for result in test_case.expected_result %}
+                                                                                <div class="input-group mb-1 expected-result-item">
+                                                                                    <span class="input-group-text">✓</span>
+                                                                                    <input type="text" class="form-control" value="{{ result }}">
+                                                                                    <button class="btn btn-outline-danger" type="button" onclick="removeExpectedResult(this)">
+                                                                                        <i class="fas fa-trash"></i>
+                                                                                    </button>
+                                                                                </div>
+                                                                            {% endfor %}
+                                                                        </div>
+                                                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addExpectedResult(this)">
+                                                                            <i class="fas fa-plus"></i> Add Expected Result
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        {% endfor %}
+                                                        <!-- Add Test Case button at the end of test cases list -->
+                                                        <button type="button" class="btn btn-sm btn-outline-success mt-2" onclick="addTestCase(this)">
+                                                            <i class="fas fa-plus"></i> Add Test Case
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="sub-feature-item card mb-3">
+                                            <div class="card-header d-flex justify-content-between align-items-center">
+                                                <input type="text" class="form-control form-control-sm sub-feature-name" value="New Sub-Feature" style="max-width: 300px;">
+                                                <div>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeSubFeature(this)">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="test-cases-list">
+                                                    <!-- Test cases will be added here -->
+                                                    <!-- Add Test Case button at the end of test cases list -->
+                                                    <button type="button" class="btn btn-sm btn-outline-success mt-2" onclick="addTestCase(this)">
+                                                        <i class="fas fa-plus"></i> Add Test Case
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <!-- Add Sub-Feature button at the end of sub-features list -->
+                                <button type="button" class="btn btn-sm btn-outline-primary mt-3" onclick="addSubFeature()">
+                                    <i class="fas fa-plus"></i> Add Sub-Feature
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Tests Tab -->
+    <div class="tab-pane fade" id="detailed-tests" role="tabpanel">
+        <div class="card mt-3">
+            <div class="card-body">
+                <h5>Detailed Test Cases</h5>
+                {% if result.detailed_tests %}
+                    {% for test_case in result.detailed_tests.test_suite %}
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-vial"></i> 
+                                    {{ test_case.high_level_test_case['Test Case ID'] }} - 
+                                    {{ test_case.high_level_test_case['Test Scenario/Description'] }}
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <strong>Priority:</strong> 
+                                        <span class="badge bg-warning">{{ test_case.high_level_test_case['Priority'] }}</span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>Type:</strong> 
+                                        <span class="badge bg-info">{{ test_case.high_level_test_case['Test Type'] }}</span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>Steps:</strong> 
+                                        {{ test_case.detailed_manual_test_case|length }}
+                                    </div>
+                                </div>
+                                
+                                <h6>Detailed Steps:</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th width="10%">Step</th>
+                                                <th width="45%">Action</th>
+                                                <th width="45%">Expected Result</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for step in test_case.detailed_manual_test_case %}
+                                                <tr>
+                                                    <td><strong>{{ step.step_number }}</strong></td>
+                                                    <td>{{ step.action }}</td>
+                                                    <td>{{ step.expected_result }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <h6>Sample Bug Report:</h6>
+                                <div class="bg-light p-3 rounded">
+                                    <pre class="mb-0">{{ test_case.sample_bug_report }}</pre>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No detailed tests available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Raw JSON Tab -->
+    <div class="tab-pane fade" id="raw-json" role="tabpanel">
+        <div class="card mt-3">
+            <div class="card-body">
+                <h5>Raw JSON Data</h5>
+                <div class="mb-3">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard('testPlanJson')">
+                        <i class="fas fa-copy"></i> Copy Test Plan JSON
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard('detailedTestsJson')">
+                        <i class="fas fa-copy"></i> Copy Detailed Tests JSON
+                    </button>
+                </div>
+                
+                <ul class="nav nav-tabs" id="jsonTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="test-plan-json-tab" data-bs-toggle="tab" data-bs-target="#test-plan-json" type="button">
+                            Test Plan JSON
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="detailed-tests-json-tab" data-bs-toggle="tab" data-bs-target="#detailed-tests-json" type="button">
+                            Detailed Tests JSON
+                        </button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content mt-3" id="jsonTabContent">
+                    <div class="tab-pane fade show active" id="test-plan-json">
+                        <pre id="testPlanJson" class="language-json"><code>{{ result.test_plan | tojson(indent=2) }}</code></pre>
+                    </div>
+                    <div class="tab-pane fade" id="detailed-tests-json">
+                        <pre id="detailedTestsJson" class="language-json"><code>{{ result.detailed_tests | tojson(indent=2) }}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TestRail Upload Modal -->
+<div class="modal fade" id="testrailModal" tabindex="-1" aria-labelledby="testrailModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="testrailModalLabel">
+                    <i class="fas fa-upload"></i> Upload to TestRail
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>TestRail Configuration Required</strong><br>
+                    Make sure you have set the following environment variables:<br>
+                    <code>TESTRAIL_URL</code>, <code>TESTRAIL_USER</code>, <code>TESTRAIL_PASSWORD_OR_KEY</code>
+                </div>
+                
+                <form id="testrailForm">
+                    <div class="mb-3">
+                        <label for="projectId" class="form-label">Project ID</label>
+                        <input type="number" class="form-control" id="projectId" required placeholder="Enter TestRail Project ID">
+                        <div class="form-text">The ID of your TestRail project</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="suiteId" class="form-label">Suite ID</label>
+                        <input type="number" class="form-control" id="suiteId" required placeholder="Enter TestRail Suite ID">
+                        <div class="form-text">The ID of the test suite where cases will be uploaded</div>
+                    </div>
+                </form>
+                
+                <div id="testrailStatus" style="display: none;">
+                    <div class="alert alert-info">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <strong>Uploading to TestRail...</strong>
+                        <div id="uploadProgress">Please wait while your test plan is being uploaded.</div>
+                    </div>
+                </div>
+                
+                <div id="testrailSuccess" style="display: none;">
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        <strong>Upload Successful!</strong>
+                        <div id="successMessage"></div>
+                        <div class="mt-2">
+                            <a id="testrailLink" href="#" target="_blank" class="btn btn-success btn-sm">
+                                <i class="fas fa-external-link-alt"></i> View in TestRail
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="testrailError" style="display: none;">
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Upload Failed</strong>
+                        <div id="errorMessage"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-warning" id="uploadToTestrailBtn">
+                    <i class="fas fa-upload"></i> Upload to TestRail
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let originalTestPlanContent = null;
+
+function copyToClipboard(elementId) {
+    const element = document.getElementById(elementId);
+    const text = element.textContent;
+    
+    navigator.clipboard.writeText(text).then(function() {
+        // Show success message
+        const button = event.target.closest('button');
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        button.classList.remove('btn-outline-secondary');
+        button.classList.add('btn-success');
+        
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.classList.remove('btn-success');
+            button.classList.add('btn-outline-secondary');
+        }, 2000);
+    }).catch(function(err) {
+        console.error('Could not copy text: ', err);
+    });
+}
+
+function toggleSteps(id) {
+    var el = document.getElementById(id);
+    if (el.style.display === 'none') {
+        el.style.display = 'block';
+    } else {
+        el.style.display = 'none';
+    }
+}
+
+function toggleEditMode() {
+    const viewDiv = document.getElementById('testPlanView');
+    const editDiv = document.getElementById('testPlanEdit');
+    const editBtn = document.getElementById('editToggleBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    
+    if (viewDiv.style.display !== 'none') {
+        // Switch to edit mode
+        viewDiv.style.display = 'none';
+        editDiv.style.display = 'block';
+        editBtn.style.display = 'none';
+        saveBtn.style.display = 'inline-block';
+        cancelBtn.style.display = 'inline-block';
+    }
+}
+
+function cancelEdit() {
+    const viewDiv = document.getElementById('testPlanView');
+    const editDiv = document.getElementById('testPlanEdit');
+    const editBtn = document.getElementById('editToggleBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    
+    // Switch back to view mode
+    viewDiv.style.display = 'block';
+    editDiv.style.display = 'none';
+    editBtn.style.display = 'inline-block';
+    saveBtn.style.display = 'none';
+    cancelBtn.style.display = 'none';
+}
+
+function saveTestPlan() {
+    // Build JSON from UI form data
+    const testPlanData = buildTestPlanFromUI();
+    
+    if (!testPlanData) {
+        return; // Error already shown
+    }
+    
+    console.log('Test plan data to save:', testPlanData);
+    
+    // Show loading state
+    const saveBtn = document.getElementById('saveBtn');
+    const originalText = saveBtn.innerHTML;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    saveBtn.disabled = true;
+    
+    const jsonContent = JSON.stringify(testPlanData, null, 2);
+    console.log('JSON content to send:', jsonContent);
+    
+    // Send to server
+    fetch('/save_test_plan/{{ session_id }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            content: jsonContent
+        })
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response data:', data);
+        if (data.success) {
+            // Show success message
+            saveBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+            saveBtn.classList.remove('btn-success');
+            saveBtn.classList.add('btn-outline-success');
+            
+            // Switch back to view mode after a delay
+            setTimeout(() => {
+                // Instead of reloading, switch back to view mode and update the content
+                const viewDiv = document.getElementById('testPlanView');
+                const editDiv = document.getElementById('testPlanEdit');
+                const editBtn = document.getElementById('editToggleBtn');
+                const saveBtn = document.getElementById('saveBtn');
+                const cancelBtn = document.getElementById('cancelBtn');
+                
+                // Switch back to view mode
+                viewDiv.style.display = 'block';
+                editDiv.style.display = 'none';
+                editBtn.style.display = 'inline-block';
+                saveBtn.style.display = 'none';
+                cancelBtn.style.display = 'none';
+                
+                // Show success message
+                const successAlert = document.createElement('div');
+                successAlert.className = 'alert alert-success alert-dismissible fade show';
+                successAlert.innerHTML = `
+                    <i class="fas fa-check-circle"></i>
+                    <strong>Success!</strong> Test plan has been saved successfully.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                
+                // Insert the alert at the top of the test plan section
+                const testPlanCard = document.querySelector('#test-plan .card');
+                testPlanCard.insertBefore(successAlert, testPlanCard.firstChild);
+                
+                // Remove the alert after 5 seconds
+                setTimeout(() => {
+                    if (successAlert.parentNode) {
+                        successAlert.remove();
+                    }
+                }, 5000);
+                
+                // Reset save button
+                saveBtn.innerHTML = originalText;
+                saveBtn.disabled = false;
+                saveBtn.classList.remove('btn-outline-success');
+                saveBtn.classList.add('btn-success');
+                
+                // Show refresh message with change summary
+                const refreshAlert = document.createElement('div');
+                refreshAlert.className = 'alert alert-info alert-dismissible fade show';
+                refreshAlert.innerHTML = `
+                    <i class="fas fa-sync-alt fa-spin"></i>
+                    <strong>Changes Saved!</strong> Refreshing to show updated test plan...
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                
+                // Show success message with option to refresh
+                const saveSuccessAlert = document.createElement('div');
+                saveSuccessAlert.className = 'alert alert-success alert-dismissible fade show';
+                saveSuccessAlert.innerHTML = `
+                    <i class="fas fa-check-circle"></i>
+                    <strong>Test plan saved successfully!</strong>
+                    <div class="mt-2">
+                        <button type="button" class="btn btn-sm btn-outline-success" onclick="location.reload()">
+                            <i class="fas fa-sync-alt"></i> Refresh to see changes
+                        </button>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                
+                // Replace any existing alert
+                const testPlanCardElement = document.querySelector('#test-plan .card');
+                const existingAlert = testPlanCardElement.querySelector('.alert');
+                if (existingAlert) {
+                    existingAlert.remove();
+                }
+                testPlanCardElement.insertBefore(saveSuccessAlert, testPlanCardElement.firstChild);
+            }, 1500);
+        } else {
+            alert('Error saving test plan: ' + data.error);
+            saveBtn.innerHTML = originalText;
+            saveBtn.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error saving test plan. Please try again.');
+        saveBtn.innerHTML = originalText;
+        saveBtn.disabled = false;
+    });
+}
+
+function buildTestPlanFromUI() {
+    try {
+        // Get basic information
+        const testPlanId = document.getElementById('testPlanId').value.trim();
+        const feature = document.getElementById('testPlanFeature').value.trim();
+        const objective = document.getElementById('testPlanObjective').value.trim();
+        
+        if (!testPlanId || !feature || !objective) {
+            alert('Please fill in all basic information fields (Test Plan ID, Feature, and Objective).');
+            return null;
+        }
+        
+        // Get preconditions
+        const preconditions = [];
+        document.querySelectorAll('.precondition-item input').forEach(input => {
+            const value = input.value.trim();
+            if (value) {
+                preconditions.push(value);
+            }
+        });
+        
+        // Get sub-features and test cases
+        const subFeatureTests = [];
+        document.querySelectorAll('.sub-feature-item').forEach(subFeatureDiv => {
+            const subFeatureName = subFeatureDiv.querySelector('.sub-feature-name').value.trim();
+            if (!subFeatureName) {
+                alert('All sub-features must have a name.');
+                return null;
+            }
+            
+            const testCases = [];
+            subFeatureDiv.querySelectorAll('.test-case-item').forEach(testCaseDiv => {
+                const testCaseId = testCaseDiv.querySelector('input[type="text"]').value.trim();
+                const selects = testCaseDiv.querySelectorAll('select');
+                const testType = selects[0] ? selects[0].value : 'Functional';
+                const priority = selects[1] ? selects[1].value : 'Medium';
+                // Get all textarea fields
+                const textareas = testCaseDiv.querySelectorAll('textarea');
+                const testScenario = textareas[0] ? textareas[0].value.trim() : '';
+                // Find additional notes field by label or class
+                let additionalNotes = '';
+                // Try to find by class first
+                if (testCaseDiv.querySelector('.rationale-field')) {
+                    additionalNotes = testCaseDiv.querySelector('.rationale-field').value.trim();
+                } else {
+                    // Fallback: if second textarea is additional notes
+                    additionalNotes = textareas[1] ? textareas[1].value.trim() : '';
+                }
+
+                if (!testCaseId || !testScenario) {
+                    alert('All test cases must have an ID and scenario.');
+                    return null;
+                }
+
+                // Get test steps
+                const testSteps = [];
+                testCaseDiv.querySelectorAll('.test-step-item input').forEach((input, index) => {
+                    const value = input.value.trim();
+                    if (value) {
+                        testSteps.push(value);
+                    }
+                });
+
+                // Get expected results
+                const expectedResults = [];
+                testCaseDiv.querySelectorAll('.expected-result-item input').forEach(input => {
+                    const value = input.value.trim();
+                    if (value) {
+                        expectedResults.push(value);
+                    }
+                });
+
+                testCases.push({
+                    test_case_id: testCaseId,
+                    test_type: testType,
+                    priority: priority,
+                    test_scenario: testScenario,
+                    test_steps: testSteps,
+                    expected_result: expectedResults,
+                    additional_notes: additionalNotes
+                });
+            });
+            
+            subFeatureTests.push({
+                sub_feature: subFeatureName,
+                test_cases: testCases
+            });
+        });
+        
+        return {
+            test_plan: {
+                test_plan_id: testPlanId,
+                feature: feature,
+                objective: objective,
+                preconditions: preconditions,
+                sub_feature_tests: subFeatureTests
+            }
+        };
+        
+    } catch (error) {
+        console.error('Error building test plan:', error);
+        alert('Error building test plan data. Please check your inputs.');
+        return null;
+    }
+}
+
+// UI Helper Functions
+function addPrecondition() {
+    const container = document.getElementById('preconditionsList');
+    const newItem = document.createElement('div');
+    newItem.className = 'input-group mb-2 precondition-item';
+    newItem.innerHTML = `
+        <input type="text" class="form-control" placeholder="Enter a precondition...">
+        <button class="btn btn-outline-danger" type="button" onclick="removePrecondition(this)">
+            <i class="fas fa-trash"></i>
+        </button>
+    `;
+    container.appendChild(newItem);
+}
+
+function removePrecondition(button) {
+    const item = button.closest('.precondition-item');
+    if (document.querySelectorAll('.precondition-item').length > 1) {
+        item.remove();
+    } else {
+        item.querySelector('input').value = '';
+    }
+}
+
+function addSubFeature() {
+    const container = document.getElementById('subFeaturesList');
+    const newSubFeature = document.createElement('div');
+    newSubFeature.className = 'sub-feature-item card mb-3';
+    newSubFeature.innerHTML = `
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <input type="text" class="form-control form-control-sm sub-feature-name" value="New Sub-Feature" style="max-width: 300px;">
+            <div>
+                <button type="button" class="btn btn-sm btn-outline-success" onclick="addTestCase(this)">
+                    <i class="fas fa-plus"></i> Add Test Case
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeSubFeature(this)">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="test-cases-list">
+                <!-- Test cases will be added here -->
+            </div>
+        </div>
+    `;
+    container.appendChild(newSubFeature);
+}
+
+function removeSubFeature(button) {
+    const subFeature = button.closest('.sub-feature-item');
+    if (document.querySelectorAll('.sub-feature-item').length > 1) {
+        subFeature.remove();
+    } else {
+        alert('You must have at least one sub-feature.');
+    }
+}
+
+function addTestCase(button) {
+    const testCasesList = button.closest('.sub-feature-item').querySelector('.test-cases-list');
+    const newTestCase = document.createElement('div');
+    newTestCase.className = 'test-case-item card mb-2';
+    newTestCase.innerHTML = `
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <label class="form-label">Test Case ID</label>
+                    <input type="text" class="form-control form-control-sm" value="TC_001">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Test Type</label>
+                    <select class="form-select form-select-sm">
+                        <option value="Functional">Functional</option>
+                        <option value="Integration">Integration</option>
+                        <option value="UI/UX">UI/UX</option>
+                        <option value="Performance">Performance</option>
+                        <option value="Security">Security</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Priority</label>
+                    <select class="form-select form-select-sm">
+                        <option value="High">High</option>
+                        <option value="Medium" selected>Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Actions</label>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeTestCase(this)">
+                        <i class="fas fa-trash"></i> Remove
+                    </button>
+                </div>
+            </div>
+            <div class="mt-2">
+                <label class="form-label">Test Scenario</label>
+                <textarea class="form-control" rows="2" placeholder="Describe the test scenario..."></textarea>
+            </div>
+            <div class="mt-2">
+                <label class="form-label">Test Steps</label>
+                <div class="test-steps-list">
+                    <div class="input-group mb-1 test-step-item">
+                        <span class="input-group-text">1</span>
+                        <input type="text" class="form-control" placeholder="Enter test step...">
+                        <button class="btn btn-outline-danger" type="button" onclick="removeTestStep(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addTestStep(this)">
+                    <i class="fas fa-plus"></i> Add Step
+                </button>
+            </div>
+            <div class="mt-2">
+                <label class="form-label">Expected Results</label>
+                <div class="expected-results-list">
+                    <div class="input-group mb-1 expected-result-item">
+                        <span class="input-group-text">✓</span>
+                        <input type="text" class="form-control" placeholder="Enter expected result...">
+                        <button class="btn btn-outline-danger" type="button" onclick="removeExpectedResult(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addExpectedResult(this)">
+                    <i class="fas fa-plus"></i> Add Expected Result
+                </button>
+            </div>
+        </div>
+    `;
+    testCasesList.appendChild(newTestCase);
+}
+
+function removeTestCase(button) {
+    const testCase = button.closest('.test-case-item');
+    const testCasesList = testCase.closest('.test-cases-list');
+    if (testCasesList.children.length > 1) {
+        testCase.remove();
+    } else {
+        alert('You must have at least one test case per sub-feature.');
+    }
+}
+
+function addTestStep(button) {
+    const stepsList = button.previousElementSibling;
+    const stepNumber = stepsList.children.length + 1;
+    const newStep = document.createElement('div');
+    newStep.className = 'input-group mb-1 test-step-item';
+    newStep.innerHTML = `
+        <span class="input-group-text">${stepNumber}</span>
+        <input type="text" class="form-control" placeholder="Enter test step...">
+        <button class="btn btn-outline-danger" type="button" onclick="removeTestStep(this)">
+            <i class="fas fa-trash"></i>
+        </button>
+    `;
+    stepsList.appendChild(newStep);
+}
+
+function removeTestStep(button) {
+    const step = button.closest('.test-step-item');
+    const stepsList = step.parentElement;
+    if (stepsList.children.length > 1) {
+        step.remove();
+        // Renumber remaining steps
+        stepsList.querySelectorAll('.test-step-item').forEach((item, index) => {
+            item.querySelector('.input-group-text').textContent = index + 1;
+        });
+    } else {
+        step.querySelector('input').value = '';
+    }
+}
+
+function addExpectedResult(button) {
+    const resultsList = button.previousElementSibling;
+    const newResult = document.createElement('div');
+    newResult.className = 'input-group mb-1 expected-result-item';
+    newResult.innerHTML = `
+        <span class="input-group-text">✓</span>
+        <input type="text" class="form-control" placeholder="Enter expected result...">
+        <button class="btn btn-outline-danger" type="button" onclick="removeExpectedResult(this)">
+            <i class="fas fa-trash"></i>
+        </button>
+    `;
+    resultsList.appendChild(newResult);
+}
+
+function removeExpectedResult(button) {
+    const result = button.closest('.expected-result-item');
+    const resultsList = result.parentElement;
+    if (resultsList.children.length > 1) {
+        result.remove();
+    } else {
+        result.querySelector('input').value = '';
+    }
+}
+
+// TestRail Upload Functions
+function uploadToTestRail() {
+    const projectId = document.getElementById('projectId').value;
+    const suiteId = document.getElementById('suiteId').value;
+    
+    if (!projectId || !suiteId) {
+        alert('Please enter both Project ID and Suite ID');
+        return;
+    }
+    
+    // Show upload status
+    document.getElementById('testrailStatus').style.display = 'block';
+    document.getElementById('testrailSuccess').style.display = 'none';
+    document.getElementById('testrailError').style.display = 'none';
+    document.getElementById('uploadToTestrailBtn').disabled = true;
+    
+    // Send upload request
+    fetch('/upload_to_testrail/{{ session_id }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            project_id: parseInt(projectId),
+            suite_id: parseInt(suiteId)
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('testrailStatus').style.display = 'none';
+        
+        if (data.success) {
+            // Show success
+            document.getElementById('testrailSuccess').style.display = 'block';
+            document.getElementById('successMessage').textContent = data.message;
+            
+            if (data.testrail_url) {
+                const link = document.getElementById('testrailLink');
+                link.href = data.testrail_url;
+                link.textContent = `View Test Suite ${data.suite_id} in TestRail`;
+            }
+            
+            // Update button
+            document.getElementById('uploadToTestrailBtn').innerHTML = '<i class="fas fa-check"></i> Uploaded';
+            document.getElementById('uploadToTestrailBtn').classList.remove('btn-warning');
+            document.getElementById('uploadToTestrailBtn').classList.add('btn-success');
+        } else {
+            // Show error
+            document.getElementById('testrailError').style.display = 'block';
+            document.getElementById('errorMessage').textContent = data.error;
+            
+            // Reset button
+            document.getElementById('uploadToTestrailBtn').disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('testrailStatus').style.display = 'none';
+        document.getElementById('testrailError').style.display = 'block';
+        document.getElementById('errorMessage').textContent = 'Network error. Please try again.';
+        document.getElementById('uploadToTestrailBtn').disabled = false;
+    });
+}
+
+// Initialize TestRail modal functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadBtn = document.getElementById('uploadToTestrailBtn');
+    if (uploadBtn) {
+        uploadBtn.addEventListener('click', uploadToTestRail);
+    }
+    
+    // Reset modal when it's closed
+    const testrailModal = document.getElementById('testrailModal');
+    if (testrailModal) {
+        testrailModal.addEventListener('hidden.bs.modal', function() {
+            // Reset form and status
+            document.getElementById('testrailForm').reset();
+            document.getElementById('testrailStatus').style.display = 'none';
+            document.getElementById('testrailSuccess').style.display = 'none';
+            document.getElementById('testrailError').style.display = 'none';
+            document.getElementById('uploadToTestrailBtn').disabled = false;
+            document.getElementById('uploadToTestrailBtn').innerHTML = '<i class="fas fa-upload"></i> Upload to TestRail';
+            document.getElementById('uploadToTestrailBtn').classList.remove('btn-success');
+            document.getElementById('uploadToTestrailBtn').classList.add('btn-warning');
+        });
+    }
+});
+
+
+
+// Initialize Prism.js for syntax highlighting
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof Prism !== 'undefined') {
+        Prism.highlightAll();
+    }
+});
+</script>
+{% endblock %} 

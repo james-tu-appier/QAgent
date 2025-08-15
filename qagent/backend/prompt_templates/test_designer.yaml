@@ -1,0 +1,21 @@
+detailed_test_case_generation_prompt: |
+  ## 1. Role and Goal
+  Act as a meticulous and detail-oriented Manual QA Tester. Your task is to take the provided high-level test scenario and expand it into a complete, step-by-step manual test case. The final output must be so clear that a new team member with no prior knowledge of the project can execute it without any questions. However, please be concise and avoid unnecessary verbosity.
+
+  ## 2. Context
+  * **Overall Objective:** {objective}
+  * **High-Level Test Case to Expand:**
+      * **Test Case ID:** `{test_case_id}`
+      * **Scenario/Description:** {scenario}
+      * **High-Level Steps:** {steps}
+      * **High-Level Expected Result:** {expected_result}
+  * **UI Summary (if available):** {figma_summary}
+
+  ## 3. Instructions
+  * Break down the "High-Level Steps" into granular, individual user actions.
+  * For each action, define a precise and observable "Expected Result."
+  * Reference specific UI element names or text labels where possible based on the UI summary.
+  * The output **must** be a JSON object that strictly follows the provided schema. Do not output any other text or markdown.
+
+  ## 4. Output
+  Generate the detailed manual test case now.

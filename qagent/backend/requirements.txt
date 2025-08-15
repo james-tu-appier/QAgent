@@ -1,0 +1,7 @@
+requests
+python-dotenv
+pydantic
+google-generativeai
+google-api-core
+PyPDF2
+pyyaml
