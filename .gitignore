@@ -1,0 +1,50 @@
+# env files
+.env
+*/.env
+
+# outputs and uploads
+qagent/uploads
+qagent/output
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.log
+*.sqlite3
+*.db
+*.pot
+*.mo
+*.coverage
+.coverage.*
+htmlcov/
+.tox/
+.mypy_cache/
+.pytest_cache/
+.venv/
+venv/
+ENV/
+env/
+pip-wheel-metadata/
+site/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+__MACOSX/
+
+# VS Code
+.vscode/
+.qodo
