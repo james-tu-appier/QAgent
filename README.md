@@ -1,4 +1,15 @@
 ![CoverIQ](Demo_Images/Logo.png)
+<p align="center">
+    <a href="https://www.appier.com/en/">
+        <img alt="Appier" src="https://img.shields.io/badge/Organization-Appier-blue">
+    </a>
+    <a href="https://www.appier.com/en/">
+        <img alt="Appier" src="https://img.shields.io/badge/Team-Personalization_Cloud_QA-navy">
+    </a>
+    <a href="https://www.appier.com/en/">
+        <img alt="Appier" src="https://img.shields.io/badge/Appier_2025_Hackathon-Practical_Impact_Award--2nd_Place-default">
+    </a>
+</p>
 
 # QAgent
 
