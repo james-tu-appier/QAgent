@@ -1,4 +1,4 @@
-![CoverIQ](Demo_Images/logo.png)
+![CoverIQ](Demo_Images/Logo.png)
 
 # QAgent
 
