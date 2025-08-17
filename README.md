@@ -1,3 +1,5 @@
+![CoverIQ](Demo_Images/logo.png)
+
 # QAgent
 
 > Don’t just automate tests. Automate your tasks\! 
