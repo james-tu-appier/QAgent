@@ -8,7 +8,7 @@ Hackathon Confluence Page: https://appier.atlassian.net/wiki/spaces/Labs/pages/4
 ```bash
 # 1) Clone
 git clone <your-repo-url>
-cd TestPlannerV2
+cd qagent
 
 # 2) Create and activate a virtualenv (recommended)
 python3 -m venv .venv
