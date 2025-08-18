@@ -40,7 +40,7 @@ FIGMA_ACCESS_TOKEN="your_figma_access_token"
 
 # Optional: TestRail upload
 TESTRAIL_URL=https://appier.testrail.io/
-TESTRAIL_USER=y"our_user"
+TESTRAIL_USER="your_user_email"
 TESTRAIL_PASSWORD_OR_KEY="your_password_or_api_key"
 ```
 
