@@ -7,7 +7,7 @@ Hackathon Confluence Page: https://appier.atlassian.net/wiki/spaces/Labs/pages/4
 
 ```bash
 # 1) Clone
-git clone <your-repo-url>
+git clone <this-repo>
 cd qagent
 
 # 2) Create and activate a virtualenv (recommended)
