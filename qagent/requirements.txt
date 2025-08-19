@@ -11,7 +11,7 @@ blinker==1.6.3
 requests
 python-dotenv
 pydantic
-google-genai
+google-generativeai
 google-api-core
 PyPDF2
 pyyaml
