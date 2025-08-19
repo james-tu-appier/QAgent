@@ -139,22 +139,28 @@ class TestPlannerDemo:
         with open(f"{output_dir}/test_plan.md", "w") as f:
             f.write(test_plan_md)
         
-        # Step 6: Generate detailed test cases
-        print("Step 6: Generating detailed test cases...")
-        detailed_tests = self.detailed_test_generator.generate_detailed_test_suite(
-            test_plan_path=f"{output_dir}/test_plan.md",
-            prompt_file_path=get_prompt_template_path("test_designer.yaml"),
-            figma_summary_path=f"{output_dir}/figma_summary.txt",
-            max_test_cases=3
-        )
+        # # Detailed Test Cases are Deprecated for now
+        # # Step 6: Generate detailed test cases
+        # print("Step 6: Generating detailed test cases...")
+        # detailed_tests = self.detailed_test_generator.generate_detailed_test_suite(
+        #     test_plan_path=f"{output_dir}/test_plan.md",
+        #     prompt_file_path=get_prompt_template_path("test_designer.yaml"),
+        #     figma_summary_path=f"{output_dir}/figma_summary.txt",
+        #     max_test_cases=3
+        # )
+        # self.detailed_test_generator.save_test_suite(detailed_tests, f"{output_dir}/test_suite.json")
+        
+        # # Step 7: Convert detailed tests to Markdown
+        # print("Step 7: Converting detailed tests to Markdown...")
+        # test_suite_md = self.markdown_formatter.convert_test_suite_json_to_md(detailed_tests)
+        # with open(f"{output_dir}/test_suite.md", "w") as f:
+        #     f.write(test_suite_md)
+        detailed_tests = {"WIP": "Detailed test cases."}
         self.detailed_test_generator.save_test_suite(detailed_tests, f"{output_dir}/test_suite.json")
-        
-        # Step 7: Convert detailed tests to Markdown
-        print("Step 7: Converting detailed tests to Markdown...")
-        test_suite_md = self.markdown_formatter.convert_test_suite_json_to_md(detailed_tests)
         with open(f"{output_dir}/test_suite.md", "w") as f:
-            f.write(test_suite_md)
-        
+            f.write("WIP: " + detailed_tests['WIP'])
+
+
         return {
             "success": True,
             "prd_context": prd_context,
@@ -314,21 +320,26 @@ class TestPlannerDemo:
             }
             
         elif checkpoint == 3:
-            # Step 5: Generate detailed test cases
-            print("Step 5: Generating detailed test cases...")
-            detailed_tests = self.detailed_test_generator.generate_detailed_test_suite(
-                test_plan_path=f"{output_dir}/test_plan.md",
-                prompt_file_path=get_prompt_template_path("test_designer.yaml"),
-                figma_summary_path=f"{output_dir}/figma_summary.txt",
-                max_test_cases=3
-            )
-            self.detailed_test_generator.save_test_suite(detailed_tests, f"{output_dir}/test_suite.json")
+            # # Step 5: Generate detailed test cases
+            # print("Step 5: Generating detailed test cases...")
+            # detailed_tests = self.detailed_test_generator.generate_detailed_test_suite(
+            #     test_plan_path=f"{output_dir}/test_plan.md",
+            #     prompt_file_path=get_prompt_template_path("test_designer.yaml"),
+            #     figma_summary_path=f"{output_dir}/figma_summary.txt",
+            #     max_test_cases=3
+            # )
+            # self.detailed_test_generator.save_test_suite(detailed_tests, f"{output_dir}/test_suite.json")
             
-            # Step 6: Convert detailed tests to Markdown
-            print("Step 6: Converting detailed tests to Markdown...")
-            test_suite_md = self.markdown_formatter.convert_test_suite_json_to_md(detailed_tests)
+            # # Step 6: Convert detailed tests to Markdown
+            # print("Step 6: Converting detailed tests to Markdown...")
+            # test_suite_md = self.markdown_formatter.convert_test_suite_json_to_md(detailed_tests)
+            # with open(f"{output_dir}/test_suite.md", "w") as f:
+            #     f.write(test_suite_md)
+
+            detailed_tests = {"WIP": "Detailed test cases."}
+            self.detailed_test_generator.save_test_suite(detailed_tests, f"{output_dir}/test_suite.json")
             with open(f"{output_dir}/test_suite.md", "w") as f:
-                f.write(test_suite_md)
+                f.write("WIP: " + detailed_tests['WIP'])
             
             # Load all results for final display
             with open(f"{output_dir}/prd_context.json", "r") as f:

@@ -49,15 +49,15 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <h6>Detailed Test Files:</h6>
+                <h6>Detailed Test Files (WIP):</h6>
                 <div class="d-grid gap-2">
                     <a href="{{ url_for('download_file', session_id=session_id, file_type='test_suite_json') }}" 
                        class="btn btn-outline-success btn-sm">
-                        <i class="fas fa-file-code"></i> Test Suite (JSON)
+                        <i class="fas fa-file-code"></i> Test Suite (JSON) - WIP
                     </a>
                     <a href="{{ url_for('download_file', session_id=session_id, file_type='test_suite_md') }}" 
                        class="btn btn-outline-success btn-sm">
-                        <i class="fas fa-file-alt"></i> Test Suite (Markdown)
+                        <i class="fas fa-file-alt"></i> Test Suite (Markdown) - WIP
                     </a>
                 </div>
             </div>
@@ -92,7 +92,7 @@
     </li>
     <li class="nav-item" role="presentation">
         <button class="nav-link" id="detailed-tests-tab" data-bs-toggle="tab" data-bs-target="#detailed-tests" type="button" role="tab">
-            <i class="fas fa-vial"></i> Detailed Tests
+            <i class="fas fa-vial"></i> Detailed Tests (WIP)
         </button>
     </li>
     <li class="nav-item" role="presentation">
@@ -474,7 +474,7 @@
     </div>
 
     <!-- Detailed Tests Tab -->
-    <div class="tab-pane fade" id="detailed-tests" role="tabpanel">
+    <!-- <div class="tab-pane fade" id="detailed-tests" role="tabpanel">
         <div class="card mt-3">
             <div class="card-body">
                 <h5>Detailed Test Cases</h5>
@@ -538,7 +538,7 @@
                 {% endif %}
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Raw JSON Tab -->
     <div class="tab-pane fade" id="raw-json" role="tabpanel">
@@ -549,9 +549,9 @@
                     <button class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard('testPlanJson')">
                         <i class="fas fa-copy"></i> Copy Test Plan JSON
                     </button>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard('detailedTestsJson')">
+                    <!-- <button class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard('detailedTestsJson')">
                         <i class="fas fa-copy"></i> Copy Detailed Tests JSON
-                    </button>
+                    </button> -->
                 </div>
                 
                 <ul class="nav nav-tabs" id="jsonTabs" role="tablist">
@@ -560,20 +560,20 @@
                             Test Plan JSON
                         </button>
                     </li>
-                    <li class="nav-item" role="presentation">
+                    <!-- <li class="nav-item" role="presentation">
                         <button class="nav-link" id="detailed-tests-json-tab" data-bs-toggle="tab" data-bs-target="#detailed-tests-json" type="button">
                             Detailed Tests JSON
                         </button>
-                    </li>
+                    </li> -->
                 </ul>
                 
                 <div class="tab-content mt-3" id="jsonTabContent">
                     <div class="tab-pane fade show active" id="test-plan-json">
                         <pre id="testPlanJson" class="language-json"><code>{{ result.test_plan | tojson(indent=2) }}</code></pre>
                     </div>
-                    <div class="tab-pane fade" id="detailed-tests-json">
+                    <!-- <div class="tab-pane fade" id="detailed-tests-json">
                         <pre id="detailedTestsJson" class="language-json"><code>{{ result.detailed_tests | tojson(indent=2) }}</code></pre>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
