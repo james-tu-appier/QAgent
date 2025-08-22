@@ -45,10 +45,14 @@ def get_prompt_template_path(template_name):
     return str(base_path / "backend" / "prompt_templates" / template_name)
 
 def check_api_keys():
-    """Check if required API keys are available"""
+    """Check if required API keys are available in environment or .env file"""
+    # First try loading from .env file
+    load_dotenv()
+    
     gemini_key = os.environ.get('GEMINI_API_KEY')
     figma_token = os.environ.get('FIGMA_ACCESS_TOKEN')
     
+    # Check both system environment and .env file
     missing_keys = []
     if not gemini_key:
         missing_keys.append('GEMINI_API_KEY')
