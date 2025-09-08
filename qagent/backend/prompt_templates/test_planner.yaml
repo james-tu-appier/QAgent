@@ -18,14 +18,11 @@ test_plan_generation_prompt: |
   * **User Personas:**
       * **New User:** How would someone unfamiliar with the system interact with this? What might be confusing?
       * **Power User:** How would someone try to use shortcuts or advanced features? How can they break the flow by doing things quickly or out of order?
-      * **Malicious User:** How could someone intentionally misuse this feature to cause errors, gain unauthorized access, or corrupt data? (e.g., SQL injection, cross-site scripting in input fields).
-  * **Environmental Factors:**
-      * **Network Conditions:** What happens on a very slow or unstable (flaky) internet connection? Do loading states appear correctly? What happens if a request times out?
-      * **Interruptions:** What happens if the user closes the tab, the browser crashes, the session times out, or the device loses power mid-operation?
+      * **Exploratory User:** How would someone who likes to explore the boundaries of the feature user this feature? What are some niche use cases?
 
   ## 4. Prioritization Strategy: Risk-Based Testing
-  After brainstorming all possible scenarios, assign a priority (P0, P1, P2) to each test case based on a combination of:
-  1.  **Likelihood of Failure:** How complex is the component? Is it a new integration? We have limited resources and time, so we need to prioritize functionality of the feature.
+  After brainstorming all possible scenarios, assign a priority (P0, P1, P2, P3) to each test case based on a combination of:
+  1.  **Scope:** We have limited resources and time, so we need to prioritize functionality of the feature.
   2.  **Business Impact:** What is the severity of the failure? Does it block a core user journey, cause data loss, create a security vulnerability, or significantly impact user trust?
 
   ## 5. Required Scope & Test Categories
@@ -36,4 +33,4 @@ test_plan_generation_prompt: |
   * **User-Based Testing:** Ensure maximum coverage of how users will use this feature end-to-end and all possible scenarios, combinations, and behavior. 
 
   ## 6. Output Generation
-  Produce the test plan according to the provided JSON schema. The "Rationale / Business Impact" for each test case is mandatory and must clearly link the test case back to a risk or scenario you've considered, while prompting the tester to test related scenarios. Do not include duplicate test cases. Each test case must be unique and cover a distinct scenario or aspect of the feature and try to maximize feature coverage in the least amount of cases possible. Make sure to include the expected result for each test case.
+  Produce the test plan according to the provided JSON schema. Do not include duplicate test cases. Each test case must be unique and cover a distinct scenario or aspect of the feature and try to maximize feature coverage in the least amount of cases possible. Make sure to include the expected result for each test step.
