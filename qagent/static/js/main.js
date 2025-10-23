@@ -73,14 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Validate Figma URL
-            if (!figmaInput.value.trim()) {
-                e.preventDefault();
-                showAlert('Please enter a Figma URL', 'danger');
-                return;
-            }
-
-            if (!isValidFigmaUrl(figmaInput.value.trim())) {
+            if (!figmaInput.value.trim()==="" && !isValidFigmaUrl(figmaInput.value.trim())) {
                 e.preventDefault();
                 showAlert('Please enter a valid Figma URL', 'danger');
                 return;

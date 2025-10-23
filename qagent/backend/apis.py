@@ -6,6 +6,7 @@ or any other web framework.
 """
 
 import os
+import json
 from typing import Dict, Any, Optional
 from dotenv import load_dotenv
 
@@ -96,13 +97,13 @@ class TestPlanningAPI:
             if os.path.exists(temp_path):
                 os.remove(temp_path)
     
-    def generate_test_plan(self, prd_context: Dict[str, Any], figma_summary: str) -> Dict[str, Any]:
+    def generate_test_plan(self, prd_context: Dict[str, Any], figma_summary: str = "") -> Dict[str, Any]:
         """
-        Generate test plan from PRD context and Figma summary.
+        Generate test plan from PRD context and optional Figma summary.
         
         Args:
             prd_context: Extracted PRD context
-            figma_summary: Generated Figma summary
+            figma_summary: Generated Figma summary (optional)
             
         Returns:
             Generated test plan
@@ -111,9 +112,13 @@ class TestPlanningAPI:
         temp_prd_path = "temp_prd_context.json"
         self.prd_extractor.save_prd_context(prd_context, temp_prd_path)
         
-        # Save Figma summary temporarily
+        # Save Figma summary temporarily (or create empty file if no summary)
         temp_figma_path = "temp_figma_summary.txt"
-        self.figma_summarizer.save_figma_summary(figma_summary, temp_figma_path)
+        if figma_summary:
+            self.figma_summarizer.save_figma_summary(figma_summary, temp_figma_path)
+        else:
+            with open(temp_figma_path, "w") as f:
+                f.write("No Figma data provided")
         
         try:
             test_plan = self.test_plan_generator.generate_test_plan_from_files(
@@ -127,13 +132,13 @@ class TestPlanningAPI:
                 if os.path.exists(temp_file):
                     os.remove(temp_file)
     
-    def generate_detailed_tests(self, test_plan: Dict[str, Any], figma_summary: str) -> Dict[str, Any]:
+    def generate_detailed_tests(self, test_plan: Dict[str, Any], figma_summary: str = "") -> Dict[str, Any]:
         """
         Generate detailed test cases from test plan.
         
         Args:
             test_plan: Generated test plan
-            figma_summary: Figma summary for context
+            figma_summary: Figma summary for context (optional)
             
         Returns:
             Detailed test suite
@@ -142,9 +147,13 @@ class TestPlanningAPI:
         temp_test_plan_path = "temp_test_plan.md"
         self.markdown_formatter.convert_test_plan(test_plan, temp_test_plan_path)
         
-        # Save Figma summary temporarily
+        # Save Figma summary temporarily (or create empty file if no summary)
         temp_figma_path = "temp_figma_summary.txt"
-        self.figma_summarizer.save_figma_summary(figma_summary, temp_figma_path)
+        if figma_summary:
+            self.figma_summarizer.save_figma_summary(figma_summary, temp_figma_path)
+        else:
+            with open(temp_figma_path, "w") as f:
+                f.write("No Figma data provided")
         
         try:
             detailed_tests = self.detailed_test_generator.generate_detailed_test_suite(
@@ -178,14 +187,14 @@ class TestPlanningAPI:
     
     def run_complete_workflow(self, 
                             prd_file_path: str, 
-                            figma_url: str,
+                            figma_url: str = "",
                             output_dir: str = "output") -> Dict[str, Any]:
         """
         Run the complete test planning workflow.
         
         Args:
             prd_file_path: Path to PRD file
-            figma_url: Figma design URL
+            figma_url: Figma design URL (optional)
             output_dir: Directory to save output files
             
         Returns:
@@ -198,13 +207,24 @@ class TestPlanningAPI:
         prd_context = self.extract_prd_context(prd_file_path)
         self.prd_extractor.save_prd_context(prd_context, f"{output_dir}/prd_context.json")
         
-        print("Step 2: Parsing Figma design...")
-        figma_data = self.parse_figma_design(figma_url)
-        self.figma_parser.save_figma_data(figma_data, f"{output_dir}/figma_data.json")
-        
-        print("Step 3: Summarizing Figma data...")
-        figma_summary = self.summarize_figma_data(figma_data)
-        self.figma_summarizer.save_figma_summary(figma_summary, f"{output_dir}/figma_summary.txt")
+        # Step 2: Parse Figma design (optional)
+        figma_data = None
+        figma_summary = ""
+        if figma_url and figma_url.strip():
+            print("Step 2: Parsing Figma design...")
+            figma_data = self.parse_figma_design(figma_url)
+            self.figma_parser.save_figma_data(figma_data, f"{output_dir}/figma_data.json")
+            
+            print("Step 3: Summarizing Figma data...")
+            figma_summary = self.summarize_figma_data(figma_data)
+            self.figma_summarizer.save_figma_summary(figma_summary, f"{output_dir}/figma_summary.txt")
+        else:
+            print("Step 2: Skipping Figma parsing (no URL provided)")
+            # Create empty figma files for consistency
+            with open(f"{output_dir}/figma_data.json", "w") as f:
+                json.dump({}, f)
+            with open(f"{output_dir}/figma_summary.txt", "w") as f:
+                f.write("No Figma data provided")
         
         print("Step 4: Generating test plan...")
         test_plan = self.generate_test_plan(prd_context, figma_summary)
@@ -288,13 +308,14 @@ def create_flask_app():
     
     @app.route('/generate-test-plan', methods=['POST'])
     def generate_test_plan():
-        """Generate test plan from PRD context and Figma summary."""
+        """Generate test plan from PRD context and optional Figma summary."""
         data = request.get_json()
-        if not data or 'prd_context' not in data or 'figma_summary' not in data:
-            return jsonify({"error": "PRD context and Figma summary required"}), 400
+        if not data or 'prd_context' not in data:
+            return jsonify({"error": "PRD context required"}), 400
         
         try:
-            test_plan = api.generate_test_plan(data['prd_context'], data['figma_summary'])
+            figma_summary = data.get('figma_summary', '')
+            test_plan = api.generate_test_plan(data['prd_context'], figma_summary)
             return jsonify(test_plan)
         except Exception as e:
             return jsonify({"error": str(e)}), 500
@@ -303,11 +324,12 @@ def create_flask_app():
     def generate_detailed_tests():
         """Generate detailed test cases from test plan."""
         data = request.get_json()
-        if not data or 'test_plan' not in data or 'figma_summary' not in data:
-            return jsonify({"error": "Test plan and Figma summary required"}), 400
+        if not data or 'test_plan' not in data:
+            return jsonify({"error": "Test plan required"}), 400
         
         try:
-            detailed_tests = api.generate_detailed_tests(data['test_plan'], data['figma_summary'])
+            figma_summary = data.get('figma_summary', '')
+            detailed_tests = api.generate_detailed_tests(data['test_plan'], figma_summary)
             return jsonify(detailed_tests)
         except Exception as e:
             return jsonify({"error": str(e)}), 500
@@ -329,13 +351,14 @@ def create_flask_app():
     def complete_workflow():
         """Run the complete test planning workflow."""
         data = request.get_json()
-        if not data or 'prd_file_path' not in data or 'figma_url' not in data:
-            return jsonify({"error": "PRD file path and Figma URL required"}), 400
+        if not data or 'prd_file_path' not in data:
+            return jsonify({"error": "PRD file path required"}), 400
         
         try:
+            figma_url = data.get('figma_url', '')
             result = api.run_complete_workflow(
                 data['prd_file_path'],
-                data['figma_url'],
+                figma_url,
                 data.get('output_dir', 'output')
             )
             return jsonify(result)
@@ -359,11 +382,11 @@ def create_fastapi_app():
     
     class TestPlanRequest(BaseModel):
         prd_context: Dict[str, Any]
-        figma_summary: str
+        figma_summary: str = ""
     
     class DetailedTestsRequest(BaseModel):
         test_plan: Dict[str, Any]
-        figma_summary: str
+        figma_summary: str = ""
     
     class MarkdownRequest(BaseModel):
         data: Dict[str, Any]
@@ -371,7 +394,7 @@ def create_fastapi_app():
     
     class WorkflowRequest(BaseModel):
         prd_file_path: str
-        figma_url: str
+        figma_url: str = ""
         output_dir: str = "output"
     
     @app.post("/extract-prd")

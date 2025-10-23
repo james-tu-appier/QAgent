@@ -240,11 +240,11 @@
                                                             <div class="mt-2" id="steps-{{ sub_feature.sub_feature|replace(' ', '-') }}-{{ test_case.test_case_id }}" style="display: none;">
                                                                 <div class="card card-body">
                                                                     <strong>Test Steps:</strong>
-                                                                    <ol class="mb-0">
+                                                                    <ul class="mb-0">
                                                                         {% for step in test_case.test_steps %}
                                                                             <li>{{ step }}</li>
                                                                         {% endfor %}
-                                                                    </ol>
+                                                                    </ul>
                                                                     <strong>Expected Results:</strong>
                                                                     <ol class="mb-0">
                                                                         {% for result in test_case.expected_result %}

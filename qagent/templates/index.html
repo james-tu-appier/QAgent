@@ -117,11 +117,11 @@
                             <div class="mb-4">
                                 <label for="figma_url" class="form-label">
                                     <i class="fas fa-palette me-2"></i>
-                                    Figma Design URL
+                                    Figma Design URL <span class="text-muted">(Optional)</span>
                                 </label>
-                                <input type="url" class="form-control" id="figma_url" name="figma_url" 
-                                       placeholder="https://www.figma.com/file/..." required>
-                                <div class="form-text">Link to your Figma design for UI/UX context</div>
+                                <input type="text" class="form-control" id="figma_url" name="figma_url" 
+                                       placeholder="https://www.figma.com/file/... (optional)">
+                                <div class="form-text">Link to your Figma design for UI/UX context. Leave empty to generate test plans based on PRD only.</div>
                             </div>
 
                             <!-- Submit Button -->
@@ -152,7 +152,7 @@
                                 <i class="fab fa-figma fa-2x text-primary"></i>
                             </div>
                             <h5>Design Parsing</h5>
-                            <p class="text-muted">Parse Figma designs and extract interactive components</p>
+                            <p class="text-muted">Parse Figma designs and extract interactive components (optional)</p>
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -171,7 +171,7 @@
                             <div class="card-body text-center">
                                 <i class="fas fa-brain fa-3x text-primary mb-3"></i>
                                 <h5>AI-Powered Analysis</h5>
-                                <p class="text-muted">Advanced AI analyzes your PRD and Figma designs to understand requirements</p>
+                                <p class="text-muted">Advanced AI analyzes your PRD and optionally Figma designs to understand requirements</p>
                             </div>
                         </div>
                     </div>
@@ -209,7 +209,7 @@
                                 </div>
                                 <div class="card-body">
                                     <ol class="mb-0">
-                                        <li>Upload PRD & Figma URL</li>
+                                        <li>Upload PRD (Figma URL optional)</li>
                                         <li>AI processes everything automatically</li>
                                         <li>Get complete test plan instantly</li>
                                     </ol>
@@ -223,9 +223,9 @@
                                 </div>
                                 <div class="card-body">
                                     <ol class="mb-0">
-                                        <li>Upload PRD & Figma URL</li>
+                                        <li>Upload PRD (Figma URL optional)</li>
                                         <li>Review PRD context → Modify if needed</li>
-                                        <li>Review Figma summary → Modify if needed</li>
+                                        <li>Review Figma summary (if provided) → Modify if needed</li>
                                         <li>Review test plan → Modify if needed</li>
                                         <li>Generate detailed test cases</li>
                                     </ol>
@@ -288,10 +288,15 @@
                 return;
             }
             
-            if (!figmaUrl) {
-                e.preventDefault();
-                alert('Please enter a Figma URL');
-                return;
+            // Figma URL is now optional - validate format only if provided
+            if (figmaUrl && figmaUrl.trim()) {
+                // Basic URL validation if something is entered
+                const urlPattern = /^https?:\/\/.+/;
+                if (!urlPattern.test(figmaUrl.trim())) {
+                    e.preventDefault();
+                    alert('Please enter a valid URL (starting with http:// or https://) or leave the field empty');
+                    return;
+                }
             }
             
             // Show loading overlay
