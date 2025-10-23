@@ -123,9 +123,14 @@ class TestPlanGenerator:
         """Load Figma summary from text file."""
         try:
             with open(figma_path, "r", encoding="utf-8") as f:
-                return f.read()
+                content = f.read().strip()
+                # If the file contains the default "no data" message, return empty string
+                if content == "No Figma data provided":
+                    return ""
+                return content
         except FileNotFoundError:
-            raise FileNotFoundError(f"The Figma file '{figma_path}' was not found.")
+            print(f"Warning: Figma file '{figma_path}' not found. Proceeding without Figma data.")
+            return ""
 
     def generate_test_plan_from_files(self, 
                                     context_path: str = "prd_context.json",
@@ -165,7 +170,7 @@ class TestPlanGenerator:
             "target_feature": prd_context_data.get("target_feature_summary", "N/A"),
             "core_user_stories": prd_context_data.get("core_user_stories", []),
             "tech_specs": json.dumps(prd_context_data.get("technical_specifications", {}), indent=2),
-            "figma_summary": figma_summary,
+            "figma_summary": figma_summary if figma_summary else "No UI design information available. Focus on functional testing based on the PRD requirements.",
             "additional_notes": additional_notes
         }
 

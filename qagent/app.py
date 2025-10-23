@@ -115,18 +115,28 @@ class TestPlannerDemo:
         )
         self.prd_extractor.save_prd_context(prd_context, f"{output_dir}/prd_context.json")
         
-        # Step 2: Parse Figma design
-        print("Step 2: Parsing Figma design...")
-        figma_data = self.figma_parser.parse_figma_frame_from_url(figma_url)
-        self.figma_parser.save_figma_data(figma_data, f"{output_dir}/figma_data.json")
-        
-        # Step 3: Summarize Figma data
-        print("Step 3: Summarizing Figma data...")
-        figma_summary = self.figma_summarizer.generate_figma_summary(
-            f"{output_dir}/figma_data.json",
-            get_prompt_template_path("uiux_consultant.yaml")
-        )
-        self.figma_summarizer.save_figma_summary(figma_summary, f"{output_dir}/figma_summary.txt")
+        # Step 2: Parse Figma design (optional)
+        figma_data = None
+        figma_summary = ""
+        if figma_url and figma_url.strip():
+            print("Step 2: Parsing Figma design...")
+            figma_data = self.figma_parser.parse_figma_frame_from_url(figma_url)
+            self.figma_parser.save_figma_data(figma_data, f"{output_dir}/figma_data.json")
+            
+            # Step 3: Summarize Figma data
+            print("Step 3: Summarizing Figma data...")
+            figma_summary = self.figma_summarizer.generate_figma_summary(
+                f"{output_dir}/figma_data.json",
+                get_prompt_template_path("uiux_consultant.yaml")
+            )
+            self.figma_summarizer.save_figma_summary(figma_summary, f"{output_dir}/figma_summary.txt")
+        else:
+            print("Step 2: Skipping Figma parsing (no URL provided)")
+            # Create empty figma files for consistency
+            with open(f"{output_dir}/figma_data.json", "w") as f:
+                json.dump({}, f)
+            with open(f"{output_dir}/figma_summary.txt", "w") as f:
+                f.write("No Figma data provided")
         
         # Step 4: Generate test plan
         print("Step 4: Generating test plan...")
@@ -259,18 +269,28 @@ class TestPlannerDemo:
         
         # Continue from checkpoint
         if checkpoint == 1:
-            # Step 2: Parse Figma design
-            print("Step 2: Parsing Figma design...")
-            figma_data = self.figma_parser.parse_figma_frame_from_url(workflow_state["figma_url"])
-            self.figma_parser.save_figma_data(figma_data, f"{output_dir}/figma_data.json")
-            
-            # Step 3: Summarize Figma data
-            print("Step 3: Summarizing Figma data...")
-            figma_summary = self.figma_summarizer.generate_figma_summary(
-                f"{output_dir}/figma_data.json",
-                get_prompt_template_path("uiux_consultant.yaml")
-            )
-            self.figma_summarizer.save_figma_summary(figma_summary, f"{output_dir}/figma_summary.txt")
+            # Step 2: Parse Figma design (optional)
+            figma_data = None
+            figma_summary = ""
+            if workflow_state.get("figma_url") and workflow_state["figma_url"].strip():
+                print("Step 2: Parsing Figma design...")
+                figma_data = self.figma_parser.parse_figma_frame_from_url(workflow_state["figma_url"])
+                self.figma_parser.save_figma_data(figma_data, f"{output_dir}/figma_data.json")
+                
+                # Step 3: Summarize Figma data
+                print("Step 3: Summarizing Figma data...")
+                figma_summary = self.figma_summarizer.generate_figma_summary(
+                    f"{output_dir}/figma_data.json",
+                    get_prompt_template_path("uiux_consultant.yaml")
+                )
+                self.figma_summarizer.save_figma_summary(figma_summary, f"{output_dir}/figma_summary.txt")
+            else:
+                print("Step 2: Skipping Figma parsing (no URL provided)")
+                # Create empty figma files for consistency
+                with open(f"{output_dir}/figma_data.json", "w") as f:
+                    json.dump({}, f)
+                with open(f"{output_dir}/figma_summary.txt", "w") as f:
+                    f.write("No Figma data provided")
             
             # Update workflow state
             workflow_state["current_step"] = 2
@@ -490,9 +510,9 @@ def upload_file():
         flash('No file selected')
         return redirect(request.url)
     
+    # Figma URL is now optional
     if not figma_url:
-        flash('Figma URL is required')
-        return redirect(request.url)
+        print('No Figma URL provided - proceeding without Figma data')
     
     if file and allowed_file(file.filename):
         # Create a unique output directory

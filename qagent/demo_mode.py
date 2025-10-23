@@ -64,9 +64,9 @@ def upload_file():
     if file.filename == '':
         flash('No file selected')
         return redirect(request.url)
+    # Figma URL is now optional
     if not figma_url:
-        flash('Figma URL is required')
-        return redirect(request.url)
+        print('No Figma URL provided - proceeding without Figma data')
     if file and allowed_file(file.filename):
         session_id = str(uuid.uuid4())[:8]
         output_dir = os.path.join(OUTPUT_FOLDER, session_id)

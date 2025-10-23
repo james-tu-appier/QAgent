@@ -163,9 +163,15 @@ class DetailedTestGenerator:
         if figma_summary_path and os.path.exists(figma_summary_path):
             try:
                 with open(figma_summary_path, 'r', encoding='utf-8') as f:
-                    figma_summary = f.read()
+                    content = f.read().strip()
+                    # If the file contains the default "no data" message, use empty string
+                    if content == "No Figma data provided":
+                        figma_summary = ""
+                    else:
+                        figma_summary = content
             except Exception as e:
                 print(f"Warning: Could not load Figma summary: {e}")
+                figma_summary = ""
 
         # Parse high-level test cases
         high_level_cases = self.parse_md_table(markdown_content)
@@ -189,7 +195,7 @@ class DetailedTestGenerator:
                 "scenario": tc.get('Test Scenario/Description', ''),
                 "steps": tc.get('Test Steps', '').replace('<br>', '\n'),
                 "expected_result": tc.get('Expected Result', '').replace('<br>', '\n'),
-                "figma_summary": figma_summary
+                "figma_summary": figma_summary if figma_summary else "No UI design information available. Focus on functional testing steps based on the test scenario."
             }
 
             # Generate detailed steps
