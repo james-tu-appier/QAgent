@@ -238,16 +238,22 @@ class MindMeisterUploader:
 
 
     def delete_all_sections(self):
-        existing_sections = self.api.get_sections(self.project_id, self.suite_id)
-        ids = [section['id'] for section in existing_sections['sections']]
-        print(f"Deleting all sections in project {self.project_id} suite {self.suite_id}...")
-        for id in ids: 
+        existing_sections = None
+        try: 
             existing_sections = self.api.get_sections(self.project_id, self.suite_id)
-            id_updated = [section['id'] for section in existing_sections['sections']]
-            if id not in id_updated: 
-                continue
-            self.api.delete_section(id)
-        print(f"Deleted {len(ids)} sections.")
+        except: 
+            print("Empty Testrail Project")
+        finally: 
+            if existing_sections:
+                ids = [section['id'] for section in existing_sections['sections']]
+                print(f"Deleting all sections in project {self.project_id} suite {self.suite_id}...")
+                for id in ids: 
+                    existing_sections = self.api.get_sections(self.project_id, self.suite_id)
+                    id_updated = [section['id'] for section in existing_sections['sections']]
+                    if id not in id_updated: 
+                        continue
+                    self.api.delete_section(id)
+                print(f"Deleted {len(ids)} sections.")
 
 
 
@@ -259,5 +265,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     uploader = MindMeisterUploader(args.mm_path, args.project_id, args.suite_id)
-    # uploader.delete_all_sections() # clears test suite before adding test cases
+    uploader.delete_all_sections() # clears test suite before adding test cases
     uploader.run()

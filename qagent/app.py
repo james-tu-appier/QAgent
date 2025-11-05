@@ -986,6 +986,7 @@ def upload_to_testrail(session_id):
         # Create uploader and upload
         try:
             uploader = TestRailUploader(json_path, int(project_id), int(suite_id))
+            uploader.delete_all_sections()
             uploader.upload_test_plan()
             
             # Generate TestRail URL
