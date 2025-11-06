@@ -38,7 +38,7 @@ Create a `.env` in the repo root:
 GEMINI_API_KEY="your_gemini_api_key"
 FIGMA_ACCESS_TOKEN="your_figma_access_token"
 
-# Optional: TestRail upload
+# For TestRail upload
 TESTRAIL_URL=https://appier.testrail.io/
 TESTRAIL_USER="your_user_email"
 TESTRAIL_PASSWORD_OR_KEY="your_password_or_api_key"
@@ -63,20 +63,11 @@ Outputs are saved under `output/<session_id>/`:
 - `test_plan.json`, `test_plan.md`
 - `test_suite.json`, `test_suite.md`
 
-Health check:
-```text
-GET /health
-```
+### Post to TestRail!! 
 
-### TestRail (Optional)
-
-Once a plan is generated, you can POST to:
-```text
-POST /upload_to_testrail/<session_id>
-```
-with JSON body:
+Once a plan is generated, you can POST the results to an existing Testrail Test Suite by providing: 
 ```json
-{ "project_id": 1, "suite_id": 2 }
+{ "project_id": x, "suite_id": xxxxxx }
 ```
 Requires `TESTRAIL_URL`, `TESTRAIL_USER`, `TESTRAIL_PASSWORD_OR_KEY` in `.env`.
 

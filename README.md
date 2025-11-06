@@ -12,8 +12,8 @@
 </p>
 
 # QAgent
-
-> Don’t just automate tests. Automate your tasks\! 
+### [Setup Guide](./README.md)
+> ### Don’t just automate tests. Automate your tasks! 
 
 QAgent is an AI-powered pipeline that automates the creation of QA documentation. By leveraging the Gemini API to digest product requirements (PRDs) and Figma designs, it generates comprehensive test plans and cases, freeing up engineers to focus on high-impact validation and optimization.
 
